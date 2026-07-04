@@ -14,8 +14,12 @@ provider "proxmox" {
 }
 
 resource "proxmox_virtual_environment_container" "test" {
-  node_name = "core-01"
+  node_name = "pve"
   vm_id     = 900
+
+  disk {
+    datastore_id = "local-lvm"
+  }
 
   initialization {
     hostname = "tf-test-01"
@@ -27,7 +31,7 @@ resource "proxmox_virtual_environment_container" "test" {
   }
 
   operating_system {
-    template_file_id = "local:vztmpl/alpine-3.20-default_20240808_amd64.tar.xz"
+    template_file_id = "local:vztmpl/alpine-3.23-default_20260116_amd64.tar.xz"
     type              = "alpine"
   }
 }
