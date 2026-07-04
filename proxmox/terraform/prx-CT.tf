@@ -1,18 +1,3 @@
-terraform {
-  required_providers {
-    proxmox = {
-      source  = "bpg/proxmox"
-      version = "~> 0.70"
-    }
-  }
-}
-
-provider "proxmox" {
-  endpoint  = "https://<proxmox-ip>:8006/"
-  api_token = "terraform@pve!tf=<your-secret>"
-  insecure  = true
-}
-
 resource "proxmox_virtual_environment_container" "test" {
   node_name = "pve"
   vm_id     = 900
