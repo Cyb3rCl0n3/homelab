@@ -1,3 +1,4 @@
+# terraform/template.tf
 resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   content_type = "import"
   datastore_id = "local"
@@ -25,10 +26,10 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
   network_device { bridge = "vmbr0" }
 
   initialization {
-    ip_config {
-      ipv4 {
-        address = "dhcp"
-      }
+    ip_config { 
+      ipv4 { 
+        address = "dhcp" 
+      } 
     }
   }
 }

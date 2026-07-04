@@ -1,0 +1,17 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Wait for cloud-init to finish
+      ansible.builtin.raw: cloud-init status --wait
+      changed_when: false
+
+    - name: Gather facts now that the host is ready
+      ansible.builtin.setup:
+
+- hosts: all
+  tasks:
+    - name: Install a test package
+      ansible.builtin.apt:
+        name: htop
+        update_cache: true
+      become: true
