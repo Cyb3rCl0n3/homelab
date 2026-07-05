@@ -3,7 +3,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
   vm_id     = var.vmid
   node_name = "pve"
 
-  clone { vm_id = 9000 }
+  clone { 
+    vm_id = 666 
+    retries = 3
+  }
 
   agent { enabled = false }
   cpu    { cores = var.cores }

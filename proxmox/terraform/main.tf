@@ -9,4 +9,5 @@ module "test_vm" {
   memory         = 3072
   username       = "proxima"
   ssh_public_key = file("~/.ssh/homelab_ansible.pub")
+  image_downloaded = true
 }
