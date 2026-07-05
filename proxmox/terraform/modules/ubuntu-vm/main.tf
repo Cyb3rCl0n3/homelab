@@ -25,6 +25,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
       username = "ansible"
       keys     = [var.ssh_public_key]
     }
+    user_account {
+      username = var.username
+    }
   }
 }
 

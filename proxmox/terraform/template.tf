@@ -16,9 +16,10 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
 
   cpu    {
 		cores = 2
-		types = "qemu64" 
+		types = "x86-64-v2-AES" 
 	}
-	
+
+  machine { type = "q35" }
   memory { dedicated = 2048 }
 
   disk {
