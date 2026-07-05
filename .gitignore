@@ -1,2 +1,6 @@
-*.tfvars
-*.*
+*.tfvars*
+*.tfstate*
+*.lock*
+.terraform
+generated.ini
+vault.yml

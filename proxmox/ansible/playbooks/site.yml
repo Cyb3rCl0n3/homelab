@@ -1,5 +1,7 @@
 - hosts: all
   gather_facts: false
+  vars_files:
+    - ../group_vars/all/vault.yml
   tasks:
     - name: Wait for cloud-init to finish
       ansible.builtin.raw: cloud-init status --wait
@@ -12,9 +14,8 @@
 
 - hosts: all
   become: true
-  vars:
-    target_user: proxima
-    ssh_public_key: "{{ lookup('file', lookup('env', 'HOME') ~ '/.ssh/homelab_ansible.pub') }}"
+  vars_files:
+    - ../group_vars/all/vault.yml
   tasks:
     - name: Ensure the target user exists
       ansible.builtin.user:
@@ -24,14 +25,16 @@
         append: true
         create_home: true
         state: present
+        password: "{{ target_password | password_hash('sha512') }}"
+        update_password: always
 
     - name: Add SSH public key for the target user
-      ansible.builtin.authorized_key:
+      ansible.posix.authorized_key:
         user: "{{ target_user }}"
         key: "{{ ssh_public_key }}"
         state: present
 
     - name: Install a test package
       ansible.builtin.apt:
-        name: fastfetch
+        name: screenfetch
         update_cache: true
