@@ -5,7 +5,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   clone { vm_id = 9000 }
 
-  agent { enabled = true }
+  agent { enabled = false }
   cpu    { cores = var.cores }
   memory { dedicated = var.memory }
 

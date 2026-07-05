@@ -5,5 +5,5 @@ module "test_vm" {
   ip_address     = "10.10.10.11/24"
   gateway        = "10.10.10.1"
   vlan_id        = 10
-  ssh_public_key = file("~/.ssh/ansible_ed25519.pub")
+  ssh_public_key = file("~/.ssh/homelab_ansible.pub")
 }

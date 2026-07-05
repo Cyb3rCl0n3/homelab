@@ -1,8 +1,9 @@
 # terraform/template.tf
-resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
+resource "proxmox_download_file" "ubuntu_cloud_image" {
   content_type = "import"
   datastore_id = "local"
   node_name    = "pve"
+	vmid 				 = 9000
   url          = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
   file_name    = "noble-server-cloudimg-amd64.qcow2"
 }
@@ -13,12 +14,16 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
   template  = true
   started   = false
 
-  cpu    { cores = 2 }
+  cpu    {
+		cores = 2
+		types = "qemu64" 
+	}
+	
   memory { dedicated = 2048 }
 
   disk {
     datastore_id = "local-lvm"
-    import_from  = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
+    import_from  = proxmox_download_file.ubuntu_cloud_image.id
     interface    = "virtio0"
     size         = 20
   }

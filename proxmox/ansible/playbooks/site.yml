@@ -3,7 +3,9 @@
   tasks:
     - name: Wait for cloud-init to finish
       ansible.builtin.raw: cloud-init status --wait
+      register: cloud_init_result
       changed_when: false
+      failed_when: cloud_init_result.rc not in [0, 2]
 
     - name: Gather facts now that the host is ready
       ansible.builtin.setup:
