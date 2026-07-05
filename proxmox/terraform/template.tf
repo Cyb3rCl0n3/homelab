@@ -3,7 +3,7 @@ resource "proxmox_download_file" "ubuntu_cloud_image" {
   content_type = "import"
   datastore_id = "local"
   node_name    = "pve"
-	vmid 				 = 9000
+	id 				   = 9000
   url          = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
   file_name    = "noble-server-cloudimg-amd64.qcow2"
 }
@@ -13,13 +13,13 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
   node_name = "pve"
   template  = true
   started   = false
+  machine = "q35"
 
   cpu    {
 		cores = 2
-		types = "x86-64-v2-AES" 
+		type = "x86-64-v2-AES" 
 	}
 
-  machine { type = "q35" }
   memory { dedicated = 2048 }
 
   disk {
