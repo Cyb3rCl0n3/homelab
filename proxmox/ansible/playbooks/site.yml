@@ -11,9 +11,27 @@
       ansible.builtin.setup:
 
 - hosts: all
+  become: true
+  vars:
+    target_user: proxima
+    ssh_public_key: "{{ lookup('file', lookup('env', 'HOME') ~ '/.ssh/homelab_ansible.pub') }}"
   tasks:
+    - name: Ensure the target user exists
+      ansible.builtin.user:
+        name: "{{ target_user }}"
+        shell: /bin/bash
+        groups: sudo
+        append: true
+        create_home: true
+        state: present
+
+    - name: Add SSH public key for the target user
+      ansible.builtin.authorized_key:
+        user: "{{ target_user }}"
+        key: "{{ ssh_public_key }}"
+        state: present
+
     - name: Install a test package
       ansible.builtin.apt:
-        name: htop
+        name: fastfetch
         update_cache: true
-      become: true
