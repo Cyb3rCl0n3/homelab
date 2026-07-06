@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kestra
+      POSTGRES_USER: kestra
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  kestra:
+    image: kestra/kestra:latest
+    restart: unless-stopped
+    user: "root"
+    command: server standalone
+    ports:
+      - "8080:8080"
+    volumes:
+      - kestra-data:/app/storage
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/kestra-wd:/tmp/kestra-wd
+      - /home/proxima/homelab/proxmox/kestra:/git-flows
+    env_file:
+      - .env_encoded
+    environment:
+      KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://postgres:5432/kestra
+            driverClassName: org.postgresql.Driver
+            username: kestra
+            password: ${POSTGRES_PASSWORD}
+        kestra:
+          flows:
+            repository:
+              - type: local 
+              - path: /git-flows
+          variables:
+            env-vars-prefix: "ENV_"
+          repository:
+            type: postgres
+          storage:
+            type: local
+            local:
+              basePath: "/app/storage"
+          queue:
+            type: postgres
+    depends_on:
+     - postgres
+
+volumes:
+  postgres-data:
+  kestra-data:
