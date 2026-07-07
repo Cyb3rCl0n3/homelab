@@ -6,7 +6,6 @@ variable "gateway"     {}
 variable "vlan_id"     {}
 variable "cores"       { default = 2 }
 variable "memory"      { default = 2048 }
-variable "username"    {}
 variable "ssh_public_key" {}
 variable "image_downloaded" {
   default = false

@@ -20,5 +20,5 @@ tasks:
         outputFiles:
           - "terraform/plan_output.txt"
         env:
-          TF_VAR_proxmox_api_token: "{{ secret('PROXMOX_API_TOKEN')}}"
-          TF_VAR_proxmox_endpoint: "{{ secret('PROXMOX_ENDPOINT') }}"
+          TF_VAR_PROXMOX_API_TOKEN: "{{ secret('PROXMOX_API_TOKEN')}}"
+          TF_VAR_PROXMOX_ENDPOINT: "{{ secret('PROXMOX_ENDPOINT') }}"

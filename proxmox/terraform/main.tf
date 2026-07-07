@@ -7,7 +7,6 @@ module "test_vm" {
   vlan_id        = 10
   cores          = 2
   memory         = 3072
-  username       = "proxima"
   ssh_public_key = file("~/.ssh/homelab_ansible.pub")
   image_downloaded = true
 }
