@@ -22,8 +22,11 @@ locals {
 
 resource "local_file" "ansible_inventory" {
   filename = "${path.module}/../ansible/inventory/generated.ini"
-  content = templatefile("${path.module}/templates/inventory.tftpl", {
-    vms         = local.vms
-    vlan_groups = local.vlan_groups
-  })
+
+  content = <<EOT
+${templatefile("${path.module}/templates/inventory.tftpl", {
+  vms         = local.vms
+  vlan_groups = local.vlan_groups
+})}
+EOT
 }

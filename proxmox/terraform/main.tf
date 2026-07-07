@@ -22,7 +22,7 @@ module "test_vm_2" {
   hostname       = "test-02"
   ip_address     = "10.10.10.12/24"
   gateway        = "10.10.10.1"
-  vlan_id        = 20
+  vlan_id        = 10
   cores          = 2
   memory         = 2048
   ssh_public_key = var.PUBLIC_SSH_KEY

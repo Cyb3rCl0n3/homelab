@@ -1,0 +1,1 @@
+ansible-vault encrypt --vault-password-file ~/.ansible/vault_pass.txt --encrypt-vault-id default group_vars/all/vault.yml
