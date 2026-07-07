@@ -1,3 +1,9 @@
+module "ubuntu-template" {
+  source = "./modules/templates/"
+  vmid   = 666
+  image_downloaded = true
+}
+
 module "test_vm" {
   source         = "./modules/ubuntu-vm"
   vmid           = 9101
@@ -8,7 +14,6 @@ module "test_vm" {
   cores          = 2
   memory         = 3072
   ssh_public_key = var.PUBLIC_SSH_KEY
-  image_downloaded = true
 }
 
 module "test_vm_2" {
@@ -21,5 +26,4 @@ module "test_vm_2" {
   cores          = 2
   memory         = 1024
   ssh_public_key = var.PUBLIC_SSH_KEY
-  image_downloaded = true
 }
