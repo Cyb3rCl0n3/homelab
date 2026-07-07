@@ -41,6 +41,11 @@ jobs:
           TF_VAR_PUBLIC_SSH_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
       - id: gen_inventory
         run: terraform output -json > ../ansible/inventory/tf_output.json
+      - name: Upload inventory artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ansible-inventory
+          path: proxmox/ansible/inventory/generated.ini
 
   ansible-configure:
     needs: terraform-apply
@@ -65,5 +70,10 @@ jobs:
         working-directory: proxmox/ansible
     steps:
       - uses: actions/checkout@v4
+      - name: Download inventory artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ansible-inventory
+          path: proxmox/ansible/inventory/
       - name: Ansible playbook Run
         run: ansible-playbook -i inventory/generated.ini playbooks/site.yml
