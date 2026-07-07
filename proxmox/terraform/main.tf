@@ -12,7 +12,7 @@ module "test_vm" {
   gateway        = "10.10.10.1"
   vlan_id        = 10
   cores          = 2
-  memory         = 3072
+  memory         = 2048
   ssh_public_key = var.PUBLIC_SSH_KEY
 }
 
