@@ -1,10 +1,10 @@
 name: Infra pipeline
 on:
   pull_request:
-    paths: ["terraform/**"]
+    paths: ["proxmox/terraform/**"]
   push:
     branches: [main]
-    paths: ["terraform/**", "ansible/**"]
+    paths: ["proxmox/terraform/**", "proxmox/ansible/**"]
 
 jobs:
   terraform-plan:
