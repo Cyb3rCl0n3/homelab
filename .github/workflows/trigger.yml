@@ -76,4 +76,4 @@ jobs:
           name: ansible-inventory
           path: proxmox/ansible/inventory/
       - name: Ansible playbook Run
-        run: ansible-playbook -i inventory/generated.ini --private-key ~/.ssh/homelab_ansible playbooks/site.yml
+        run: ansible-playbook -i inventory/generated.ini --private-key /temp/homelab_ansible playbooks/site.yml
