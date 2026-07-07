@@ -1,0 +1,56 @@
+name: Infra pipeline
+on:
+  pull_request:
+    paths: ["terraform/**"]
+  push:
+    branches: [main]
+    paths: ["terraform/**", "ansible/**"]
+
+jobs:
+  terraform-plan:
+    if: github.event_name == 'pull_request'
+    runs-on: [self-hosted, homelab]
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@v4
+      - run: terraform init
+      - run: terraform plan -no-color
+        env:
+          TF_VAR_proxmox_api_token: ${{ secrets.PROXMOX_API_TOKEN }}
+          TF_VAR_proxmox_api_url: ${{ secrets.PROXMOX_API_URL }}
+
+  terraform-apply:
+    if: github.event_name == 'push'
+    runs-on: [self-hosted, homelab]
+    environment: production   # <- requires manual approval, see below
+    defaults:
+      run:
+        working-directory: terraform
+    outputs:
+      inventory_ready: ${{ steps.gen_inventory.outcome }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: terraform init
+      - run: terraform apply -auto-approve
+        env:
+          TF_VAR_proxmox_api_token: ${{ secrets.PROXMOX_API_TOKEN }}
+          TF_VAR_proxmox_api_url: ${{ secrets.PROXMOX_API_URL }}
+      - id: gen_inventory
+        run: terraform output -json > ../ansible/inventory/tf_output.json
+
+  ansible-configure:
+    needs: terraform-apply
+    runs-on: [self-hosted, homelab]
+    defaults:
+      run:
+        working-directory: ansible
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write SSH key
+        run: |
+          echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
+          chmod 600 /tmp/homelab_ansible
+      - name: Generate inventory from Terraform output
+        run: python3
