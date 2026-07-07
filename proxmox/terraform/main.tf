@@ -18,7 +18,7 @@ module "test_vm_2" {
   ip_address     = "10.10.10.12/24"
   gateway        = "10.10.10.1"
   vlan_id        = 10
-  cores          = 2
+  cores          = 1
   memory         = 1024
   ssh_public_key = file("~/.ssh/homelab_ansible.pub")
   image_downloaded = true
