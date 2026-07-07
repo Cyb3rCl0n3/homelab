@@ -3,7 +3,7 @@ on:
   pull_request:
     paths: ["proxmox/terraform/**"]
   push:
-    branches: [ansible]
+    branches: [main]
     paths: ["proxmox/terraform/**", "proxmox/ansible/**"]
 
 jobs:
