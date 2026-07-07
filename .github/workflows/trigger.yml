@@ -20,6 +20,7 @@ jobs:
         env:
           PROXMOX_ENDPOINT: ${{ secrets.TF_VAR_PROXMOX_ENDPOINT }}
           PROXMOX_API_TOKEN: ${{ secrets.TF_VAR_PROXMOX_API_TOKEN }}
+          PUBLIC_SSH_KEY: ${{ secrets.TF_VAR_PUBLIC_SSH_KEY }}
 
   terraform-apply:
     if: github.event_name == 'push'
