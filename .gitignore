@@ -3,5 +3,4 @@
 *.lock*
 .terraform
 .env*
-generated.ini
 vault.yml

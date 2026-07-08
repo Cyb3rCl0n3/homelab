@@ -47,33 +47,45 @@ jobs:
           name: ansible-inventory
           path: proxmox/ansible/inventory/generated.ini
 
-  ansible-configure:
-    needs: terraform-apply
-    runs-on: [self-hosted, homelab]
-    defaults:
-      run:
-        working-directory: proxmox/ansible
-    steps:
-      - uses: actions/checkout@v4
-      - name: Write SSH key
-        run: |
-          echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
-          chmod 600 ~/.ssh/homelab_ansible
-      - name: Generate inventory from Terraform output
-        run: python3
+  # ansible-configure:
+  #   needs: terraform-apply
+  #   runs-on: [self-hosted, homelab]
+  #   defaults:
+  #     run:
+  #       working-directory: proxmox/ansible
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Write SSH key
+  #       run: |
+  #         echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
+  #         chmod 600 /tmp/homelab_ansible
+  #     - name: Write vault password file
+  #       run: |
+  #         echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass.txt
+  #         chmod 600 /tmp/vault_pass.txt
 
-  ansible-run:
-    needs: ansible-configure
-    runs-on: [self-hosted, homelab]
-    defaults:
-      run:
-        working-directory: proxmox/ansible
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download inventory artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ansible-inventory
-          path: proxmox/ansible/inventory/
-      - name: Ansible playbook Run
-        run: ansible-playbook -i inventory/generated.ini --private-key /temp/homelab_ansible playbooks/site.yml
+  # ansible-run:
+  #   needs: ansible-configure
+  #   runs-on: [self-hosted, homelab]
+  #   defaults:
+  #     run:
+  #       working-directory: proxmox/ansible
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Download inventory artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: ansible-inventory
+  #         path: proxmox/ansible/inventory/
+  #     - name: Ansible playbook Run
+  #       run: |
+  #         ansible-playbook \
+  #          -i inventory/generated.ini \
+  #          --vault-password-file /tmp/vault_pass.txt \
+  #          --private-key /tmp/homelab_ansible \
+  #          playbooks/site.yml
+  #     - name: Cleanup secrets
+  #       if: always()
+  #       run: |
+  #         rm -f /tmp/homelab_ansible
+  #         rm -f /tmp/vault_pass.txt

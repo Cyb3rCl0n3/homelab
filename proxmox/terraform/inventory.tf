@@ -12,11 +12,11 @@ locals {
       ip       = split("/", module.test_vm.ip_address)[0]  # strips the /24
       vlan_id  = module.test_vm.vlan_id
     }
-    test02 = {
-      hostname = module.test_vm_2.hostname
-      ip       = split("/", module.test_vm_2.ip_address)[0]
-      vlan_id  = module.test_vm_2.vlan_id
-    }
+    # test02 = {
+    #   hostname = module.test_vm_2.hostname
+    #   ip       = split("/", module.test_vm_2.ip_address)[0]
+    #   vlan_id  = module.test_vm_2.vlan_id
+    # }
   }
 }
 
