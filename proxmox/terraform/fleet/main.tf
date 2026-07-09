@@ -12,7 +12,7 @@ module "ubuntu_vm" {
 module "debian_vm" {
   source         = "../modules/vm"
   vmid           = 1002
-  template_vmid  = 9001 # debian-12-template (see ../images/main.tf)
+  template_vmid  = 9002 # debian-12-template (see ../images/main.tf)
   hostname       = "debian-01"
   ip_address     = "10.10.10.10/24"
   gateway        = "10.10.10.1"

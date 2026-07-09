@@ -8,7 +8,7 @@ module "ubuntu_template" {
 
 module "debian_template" {
   source         = "../modules/vm-images"
-  vmid           = 9001
+  vmid           = 9002
   name           = "debian-12-template"
   image_url      = "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2"
   image_filename = "debian-12-genericcloud-amd64.qcow2"
