@@ -14,6 +14,7 @@ resource "local_file" "ansible_inventory" {
     vms = {
       for name, vm in local.vms : name => {
         hostname = name
+        username = vm.username
         ip       = split("/", vm.ip_address)[0]
         vlan_id  = vm.vlan_id
         roles    = vm.roles

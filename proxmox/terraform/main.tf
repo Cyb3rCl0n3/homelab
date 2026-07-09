@@ -20,6 +20,7 @@ locals {
       ip_address = "10.10.10.11/24", 
       gateway = "10.10.10.1", 
       vlan_id = 10, 
+      username = "proxima",
       roles = ["dns"] }
       
     "debian-01" = {
@@ -28,6 +29,7 @@ locals {
       ip_address = "10.10.10.10/24", 
       gateway = "10.10.10.1", 
       vlan_id = 10, 
+      username = "proxima",
       roles = [] }
   }
 }
@@ -41,5 +43,6 @@ module "vm" {
   ip_address     = each.value.ip_address
   gateway        = each.value.gateway
   vlan_id        = each.value.vlan_id
+  username       = each.value.username
   ssh_public_key = var.PUBLIC_SSH_KEY
 }
