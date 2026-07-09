@@ -15,7 +15,8 @@ resource "proxmox_virtual_environment_vm" "template" {
 
   disk {
     datastore_id = "local-lvm"
-    import_from  = var.image_downloaded ? "local:import/${var.image_filename}" : proxmox_download_file.cloud_image[0].id
+    import_from  = "local:import/${var.image_filename}"
+    #import_from  = var.image_downloaded ? "local:import/${var.image_filename}" : proxmox_download_file.cloud_image[0].id
     interface    = "virtio0"
     size         = var.disk_size
   }

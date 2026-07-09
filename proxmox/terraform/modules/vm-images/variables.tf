@@ -6,17 +6,8 @@ variable "name" {
   type        = string
 }
 
-variable "image_url" {
-  type        = string
-}
-
 variable "image_filename" {
   type        = string
-}
-
-variable "image_downloaded" {
-  type        = bool
-  default     = false
 }
 
 variable "cores" {
