@@ -1,10 +1,10 @@
-name: Infra pipeline
+name: Fleet pipeline
 on:
   pull_request:
-    paths: ["proxmox/terraform/**"]
+    paths: ["proxmox/terraform/fleet/**"]
   push:
     branches: [main]
-    paths: ["proxmox/terraform/**", "proxmox/ansible/**"]
+    paths: ["proxmox/terraform/fleet/**", "proxmox/ansible/**"]
 
 jobs:
   terraform-plan:
@@ -28,7 +28,7 @@ jobs:
     environment: production
     defaults:
       run:
-        working-directory: proxmox/terraform
+        working-directory: proxmox/terraform/fleet
     outputs:
       inventory_ready: ${{ steps.gen_inventory.outcome }}
     steps:
@@ -41,6 +41,7 @@ jobs:
           TF_VAR_PUBLIC_SSH_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
       - id: gen_inventory
         run: terraform output -json > ../ansible/inventory/tf_output.json
+
 
   ansible-configure:
     needs: terraform-apply
