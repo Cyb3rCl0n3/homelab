@@ -3,8 +3,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
   vm_id     = var.vmid
   node_name = "pve"
 
-  clone { 
-    vm_id = 666 
+  clone {
+    vm_id   = var.template_vmid
     retries = 3
   }
 
@@ -26,12 +26,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
     }
 
     user_account {
-      username = "proxima"
+      username = var.username
       keys     = [var.ssh_public_key]
     }
   }
-}
-
-output "ip" {
-  value = split("/", var.ip_address)[0]
 }
