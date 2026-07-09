@@ -1,0 +1,5 @@
+zone "{{ dns_zone }}" {
+  type master;
+  file "{{ zone_file }}";
+  allow-transfer { none; };
+};

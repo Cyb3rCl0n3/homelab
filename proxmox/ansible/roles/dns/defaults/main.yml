@@ -1,0 +1,4 @@
+named_conf_options_path: /etc/bind/named.conf.options
+named_conf_local_path: /etc/bind/named.conf.local
+zones_dir: /var/cache/bind
+zone_file: "{{ zones_dir }}/db.{{ dns_zone }}"

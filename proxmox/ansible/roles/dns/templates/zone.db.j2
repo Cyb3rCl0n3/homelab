@@ -1,0 +1,15 @@
+$TTL 300
+@   IN SOA ns1.{{ dns_zone }}. hostmaster.{{ dns_zone }}. (
+      1  ; serial
+      300
+      300
+      300
+      300 )
+;
+
+@   IN NS ns1.{{ dns_zone }}.
+ns1 IN A  {{ dns_master_ip }}
+
+{% for r in dns_records %}
+{{ r.name }} IN {{ r.type }} {{ r.value }}
+{% endfor %}

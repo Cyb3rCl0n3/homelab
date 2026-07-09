@@ -1,6 +1,8 @@
-dns_zone: "example.com"
-dns_master_ip: "10.10.10.11"
+dns_packages:
+  - bind9
 
+dns_zone: "example.local"
+dns_master_ip: "10.10.10.11"
 dns_records:
   - name: "@"
     type: "A"
