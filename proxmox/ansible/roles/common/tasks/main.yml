@@ -9,7 +9,7 @@
 
 - name: Ensure the target user exists
   ansible.builtin.user:
-    name: "{{ target_user }}"
+    name: "{{ ansible_user }}"
     shell: /bin/bash
     groups: sudo
     append: true
@@ -20,7 +20,7 @@
 
 - name: Add SSH public key for the target user
   ansible.posix.authorized_key:
-    user: "{{ target_user }}"
+    user: "{{ ansible_user }}"
     key: "{{ ssh_public_key }}"
     state: present
 
