@@ -5,28 +5,19 @@ locals {
     30 = "internal"
     40 = "dmz"
   }
-
-  vms = {
-    ubuntu01 = {
-      hostname = module.ubuntu_vm.hostname
-      ip       = module.ubuntu_vm.ip
-      vlan_id  = module.ubuntu_vm.vlan_id
-    }
-    debian01 = {
-      hostname = module.debian_vm.hostname
-      ip       = module.debian_vm.ip
-      vlan_id  = module.debian_vm.vlan_id
-    }
-  }
 }
 
 resource "local_file" "ansible_inventory" {
-  filename = "${path.module}/../../ansible/inventory/generated.ini"
-
-  content = <<EOT
-${templatefile("${path.module}/templates/inventory.tftpl", {
-  vms         = local.vms
-  vlan_groups = local.vlan_groups
-})}
-EOT
+  filename = "${path.module}/../ansible/inventory/generated.ini"
+  content = templatefile("${path.module}/templates/inventory.tftpl", {
+    vlan_groups = local.vlan_groups
+    vms = {
+      for name, vm in local.vms : name => {
+        hostname = name
+        ip       = split("/", vm.ip_address)[0]
+        vlan_id  = vm.vlan_id
+        roles    = vm.roles
+      }
+    }
+  })
 }

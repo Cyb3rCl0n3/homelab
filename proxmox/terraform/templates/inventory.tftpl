@@ -7,3 +7,12 @@ ${vm.hostname} ansible_host=${vm.ip} ansible_user=proxima ansible_ssh_private_ke
 %{ endfor ~}
 
 %{ endfor ~}
+%{ for role in distinct(flatten([for vm in vms : vm.roles])) ~}
+[${role}]
+%{ for name, vm in vms ~}
+%{ if contains(vm.roles, role) ~}
+${vm.hostname}
+%{ endif ~}
+%{ endfor ~}
+
+%{ endfor ~}
