@@ -1,0 +1,111 @@
+- name: Configure BIND9 DNS
+  hosts: all
+  become: true
+
+  vars:
+    named_conf_options_path: /etc/bind/named.conf.options
+    named_conf_local_path: /etc/bind/named.conf.local
+    zones_dir: /var/cache/bind
+    zone_file: "{{ zones_dir }}/db.{{ dns_zone }}"
+    dns_zone: "homelab.local"
+    dns_master_ip: "10.10.10.11"
+    dns_records:
+      - name: "@"
+        type: "A"
+        value: "10.10.10.11"
+
+      - name: "ns1"
+        type: "A"
+        value: "10.10.10.11"
+
+      - name: "ns1"
+        type: "NS"
+        value: "ns1.example.com."
+
+      - name: "www"
+        type: "A"
+        value: "10.10.10.11"
+
+  tasks:
+
+    - name: Ensure directories exist
+      ansible.builtin.file:
+        path: /var/cache/bind
+        state: directory
+        owner: bind
+        group: bind
+        mode: "0755"
+
+    - name: Configure BIND options
+      ansible.builtin.copy:
+        dest: "{{ named_conf_options_path }}"
+        owner: root
+        group: bind
+        mode: "0644"
+        content: |
+          options {
+            directory "{{ zones_dir }}";
+            recursion no;
+            allow-query { any; };
+            listen-on { any; };
+            forwarders {};
+          };
+
+      notify: Restart bind9
+
+    - name: Configure local zone (master)
+      ansible.builtin.copy:
+        dest: "{{ named_conf_local_path }}"
+        owner: root
+        group: bind
+        mode: "0644"
+        content: |
+          zone "{{ dns_zone }}" {
+            type master;
+            file "{{ zone_file }}";
+            allow-transfer { none; };
+          };
+
+      notify: Restart bind9
+
+    - name: Create zone file
+      ansible.builtin.copy:
+        dest: "{{ zone_file }}"
+        owner: bind
+        group: bind
+        mode: "0644"
+        content: |
+          $TTL 300
+          @   IN SOA ns1.{{ dns_zone }}. hostmaster.{{ dns_zone }}. (
+                1  ; serial
+                300
+                300
+                300
+                300 )
+          ;
+
+          @   IN NS ns1.{{ dns_zone }}.
+          ns1 IN A  {{ dns_master_ip }}
+
+          {% for r in dns_records %}
+          {{ r.name }} IN {{ r.type }} {{ r.value }}
+          {% endfor %}
+
+      notify: Restart bind9
+
+    - name: Validate config
+      ansible.builtin.command: named-checkconf
+      changed_when: false
+      notify: Restart bind9
+
+    - name: Start/enable bind9
+      ansible.builtin.service:
+        name: bind9
+        enabled: true
+        state: started
+
+  handlers:
+    - name: Restart bind9
+      ansible.builtin.service:
+        name: bind9
+        state: restarted

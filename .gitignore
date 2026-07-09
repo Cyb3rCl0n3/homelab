@@ -1,6 +1,5 @@
 *.tfvars*
 *.tfstate*
-*.lock*
 .terraform
 .env*
 vault.yml

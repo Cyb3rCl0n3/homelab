@@ -1,5 +1,5 @@
 resource "proxmox_virtual_environment_vm" "ubuntu_template" {
-  name      = "ubuntu-2404-template"
+  name      = "ubuntu-2604-template"
   vm_id     = var.vmid
   node_name = "pve"
   template  = true

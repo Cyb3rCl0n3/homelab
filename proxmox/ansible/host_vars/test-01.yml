@@ -1,0 +1,13 @@
+dns_zone: "example.com"
+dns_master_ip: "10.10.10.11"
+
+dns_records:
+  - name: "@"
+    type: "A"
+    value: "10.10.10.11"
+  - name: "ns1"
+    type: "A"
+    value: "10.10.10.11"
+  - name: "www"
+    type: "A"
+    value: "10.10.10.11"

@@ -41,29 +41,38 @@ jobs:
           TF_VAR_PUBLIC_SSH_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
       - id: gen_inventory
         run: terraform output -json > ../ansible/inventory/tf_output.json
-      - name: Upload inventory artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ansible-inventory
-          path: proxmox/ansible/inventory/generated.ini
 
-  # ansible-configure:
-  #   needs: terraform-apply
-  #   runs-on: [self-hosted, homelab]
-  #   defaults:
-  #     run:
-  #       working-directory: proxmox/ansible
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Write SSH key
-  #       run: |
-  #         echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
-  #         chmod 600 /tmp/homelab_ansible
-  #     - name: Write vault password file
-  #       run: |
-  #         echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass.txt
-  #         chmod 600 /tmp/vault_pass.txt
+  ansible-configure:
+    needs: terraform-apply
+    runs-on: [self-hosted, homelab]
+    defaults:
+      run:
+        working-directory: proxmox/ansible
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write SSH key
+        run: |
+          echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
+          chmod 600 /tmp/homelab_ansible
+      # - name: Write vault password file
+      #   run: |
+      #     echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass.txt
+      #     chmod 600 /tmp/vault_pass.txt
 
+  ansible-run:
+    needs: ansible-configure
+    runs-on: [self-hosted, homelab]
+    defaults:
+      run:
+        working-directory: proxmox/ansible
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ansible playbook
+        run: |
+          ansible-playbook \
+           -i inventory/generated.ini \
+           playbooks/site.yml
+    
   # ansible-run:
   #   needs: ansible-configure
   #   runs-on: [self-hosted, homelab]
@@ -72,11 +81,6 @@ jobs:
   #       working-directory: proxmox/ansible
   #   steps:
   #     - uses: actions/checkout@v4
-  #     - name: Download inventory artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ansible-inventory
-  #         path: proxmox/ansible/inventory/
   #     - name: Ansible playbook Run
   #       run: |
   #         ansible-playbook \

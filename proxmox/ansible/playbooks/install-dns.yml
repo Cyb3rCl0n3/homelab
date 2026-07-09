@@ -1,0 +1,14 @@
+- hosts: all
+
+  tasks:
+    - name: Update and upgrade packages
+      become: true
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+    - name: install bind9
+      become: true
+      ansible.builtin.apt:
+        name:
+          - bind9
+        update_cache: yes

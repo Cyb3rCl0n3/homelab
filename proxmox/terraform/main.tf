@@ -1,7 +1,6 @@
 module "ubuntu-template" {
   source = "./modules/ubuntu-template"
   vmid   = 666
-  image_downloaded = true
 }
 
 module "test_vm" {
