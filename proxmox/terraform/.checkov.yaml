@@ -1,0 +1,14 @@
+# Checkov config for the Terraform root module.
+# https://www.checkov.io/2.Basics/Configuring%20Checkov%20via%20CLI%20flags.html
+framework:
+  - terraform
+
+# This is a self-hosted local module; do not pull registry modules during scan.
+download-external-modules: false
+
+compact: true
+quiet: true
+
+# Fail the scan on any violation (default). Add IDs here to accept a risk,
+# e.g. skip-check: ["CKV_..."] with a comment explaining why.
+skip-check: []

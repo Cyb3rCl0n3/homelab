@@ -1,13 +1,13 @@
 variable "vmid" {
-  type        = number
+  type = number
 }
 
 variable "name" {
-  type        = string
+  type = string
 }
 
 variable "image_filename" {
-  type        = string
+  type = string
 }
 
 variable "cores" {

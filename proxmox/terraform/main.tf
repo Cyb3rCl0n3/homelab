@@ -14,23 +14,23 @@ module "debian_template" {
 
 locals {
   vms = {
-    "ubuntu-01" = { 
-      vmid = 1001, 
-      template_vmid = 9000, 
-      ip_address = "10.10.10.11/24", 
-      gateway = "10.10.10.1", 
-      vlan_id = 10, 
-      username = "proxima",
-      roles = ["dns"] }
-      
-    "debian-01" = {
-      vmid = 1002,
-      template_vmid = 9001,
-      ip_address = "10.10.10.10/24", 
-      gateway = "10.10.10.1", 
-      vlan_id = 10, 
-      username = "proxima",
-      roles = [] }
+    "dns-01" = {
+      vmid          = 1001,
+      template_vmid = 9000,
+      ip_address    = "10.10.10.11/24",
+      gateway       = "10.10.10.1",
+      vlan_id       = 10,
+      username      = "proxima",
+    roles = ["dns"] }
+
+    "ubuntu-02" = {
+      vmid          = 1002,
+      template_vmid = 9000,
+      ip_address    = "10.10.10.10/24",
+      gateway       = "10.10.10.1",
+      vlan_id       = 10,
+      username      = "proxima",
+    roles = [] }
   }
 }
 

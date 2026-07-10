@@ -9,7 +9,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   agent { enabled = false }
-  cpu    { cores = var.cores }
+  cpu { cores = var.cores }
   memory { dedicated = var.memory }
 
   network_device {

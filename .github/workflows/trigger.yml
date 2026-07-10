@@ -7,8 +7,64 @@ on:
     paths: ["proxmox/terraform/**", "proxmox/ansible/**"]
 
 jobs:
+  terraform-scan:
+    runs-on: [self-hosted, homelab]
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: proxmox/terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Terraform init
+        run: terraform init -backend=false -input=false
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Install tflint
+        uses: terraform-linters/setup-tflint@v6
+
+      - name: Tflint scan
+        run: |
+          tflint --init --config "$(pwd)/.tflint.hcl"
+          tflint --config "$(pwd)/.tflint.hcl" --format junit > tflint_results_junit.xml
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: proxmox/terraform
+          trivy-config: proxmox/terraform/.trivy.yaml
+          format: template
+          template: '@/contrib/junit.tpl'
+          output: proxmox/terraform/trivy_results_junit.xml
+
+      - name: Checkov scan
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: proxmox/terraform
+          config_file: proxmox/terraform/.checkov.yaml
+          output_format: cli,junitxml
+          output_file_path: console,proxmox/terraform/checkov_results_junit.xml
+
+      - name: Publish scan results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: success() || failure()
+        with:
+          check_name: Terraform scan results
+          files: proxmox/terraform/*_junit.xml
+          action_fail: true
+
   terraform-plan:
     if: github.event_name == 'pull_request'
+    needs: terraform-scan
     runs-on: [self-hosted, homelab]
     defaults:
       run:
@@ -24,6 +80,7 @@ jobs:
 
   terraform-apply:
     if: github.event_name == 'push'
+    needs: terraform-scan
     runs-on: [self-hosted, homelab]
     environment: production
     defaults:
@@ -42,7 +99,7 @@ jobs:
       - id: gen_inventory
         run: terraform output -json > ../ansible/inventory/tf_output.json
 
-  ansible-configure:
+  ansible-run:
     needs: terraform-apply
     runs-on: [self-hosted, homelab]
     defaults:
@@ -54,42 +111,12 @@ jobs:
         run: |
           echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
           chmod 600 /tmp/homelab_ansible
-      # - name: Write vault password file
-      #   run: |
-      #     echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass.txt
-      #     chmod 600 /tmp/vault_pass.txt
-
-  ansible-run:
-    needs: ansible-configure
-    runs-on: [self-hosted, homelab]
-    defaults:
-      run:
-        working-directory: proxmox/ansible
-    steps:
-      - uses: actions/checkout@v4
       - name: Run ansible playbook
         run: |
           ansible-playbook \
            -i inventory/generated.ini \
+           --private-key /tmp/homelab_ansible \
            playbooks/site.yml
-    
-  # ansible-run:
-  #   needs: ansible-configure
-  #   runs-on: [self-hosted, homelab]
-  #   defaults:
-  #     run:
-  #       working-directory: proxmox/ansible
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Ansible playbook Run
-  #       run: |
-  #         ansible-playbook \
-  #          -i inventory/generated.ini \
-  #          --vault-password-file /tmp/vault_pass.txt \
-  #          --private-key /tmp/homelab_ansible \
-  #          playbooks/site.yml
-  #     - name: Cleanup secrets
-  #       if: always()
-  #       run: |
-  #         rm -f /tmp/homelab_ansible
-  #         rm -f /tmp/vault_pass.txt
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f /tmp/homelab_ansible
