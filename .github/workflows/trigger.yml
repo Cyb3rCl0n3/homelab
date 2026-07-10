@@ -4,7 +4,7 @@ on:
     paths: ["proxmox/terraform/**"]
   push:
     branches: [main]
-    paths: ["proxmox/terraform/**", "proxmox/ansible/**"]
+    paths: ["proxmox/terraform/**", "proxmox/ansible/**", ".github/workflows/**"]
 
 jobs:
   terraform-scan:
