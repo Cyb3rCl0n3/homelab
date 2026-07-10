@@ -46,7 +46,7 @@ jobs:
           scan-ref: proxmox/terraform
           trivy-config: proxmox/terraform/.trivy.yaml
           format: template
-          template: '@/contrib/junit.tpl'
+          template: '@${{ github.workspace }}/proxmox/terraform/.trivy-junit.tpl'
           output: proxmox/terraform/trivy_results_junit.xml
 
       - name: Checkov scan
