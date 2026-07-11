@@ -3,3 +3,4 @@
 .terraform
 .env*
 vault.yml
+/docs

@@ -16,11 +16,13 @@ locals {
   vms = {
     "dns-01" = {
       vmid          = 1001,
-      template_vmid = 9000,
+      template_vmid = 9001,
       ip_address    = "10.10.10.11/24",
       gateway       = "10.10.10.1",
       vlan_id       = 10,
       username      = "proxima",
+      cores         = 1,
+      memory        = 1024,
     roles = ["dns"] }
 
     "ubuntu-02" = {
@@ -30,6 +32,8 @@ locals {
       gateway       = "10.10.10.1",
       vlan_id       = 10,
       username      = "proxima",
+      cores         = 1,
+      memory        = 2048,
     roles = [] }
   }
 }
