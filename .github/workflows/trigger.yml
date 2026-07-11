@@ -115,10 +115,13 @@ jobs:
           echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
           chmod 600 /tmp/homelab_ansible
       - name: Run ansible playbook
+        env:
+          SSH_PUBLIC_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
         run: |
           ansible-playbook \
            -i inventory/generated.ini \
            --private-key /tmp/homelab_ansible \
+           -e "ssh_public_key=${SSH_PUBLIC_KEY}" \
            playbooks/site.yml
       - name: Cleanup SSH key
         if: always()
