@@ -7,21 +7,21 @@
 - name: Gather facts now that the host is ready
   ansible.builtin.setup:
 
-- name: Ensure the target user exists
-  ansible.builtin.user:
-    name: "{{ ansible_user }}"
-    shell: /bin/bash
-    groups: sudo
-    append: true
-    create_home: true
-    state: present
-    update_password: always
+# - name: Ensure the target user exists
+#   ansible.builtin.user:
+#     name: "{{ ansible_user }}"
+#     shell: /bin/bash
+#     groups: sudo
+#     append: true
+#     create_home: true
+#     state: present
+#     update_password: always
 
-- name: Add SSH public key for the target user
-  ansible.posix.authorized_key:
-    user: "{{ ansible_user }}"
-    key: "{{ ssh_public_key }}"
-    state: present
+# - name: Add SSH public key for the target user
+#   ansible.posix.authorized_key:
+#     user: "{{ ansible_user }}"
+#     key: "{{ ssh_public_key }}"
+#     state: present
 
 - name: Update and upgrade packages
   ansible.builtin.apt:
