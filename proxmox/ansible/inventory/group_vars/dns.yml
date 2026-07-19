@@ -13,3 +13,11 @@ dns_records:
   - name: "www"
     type: "A"
     value: "10.10.10.11"
+  # Docker host (VLAN 30) + wildcard so every containerised service resolves to
+  # Caddy, which routes by hostname. Adding a service later needs no DNS change.
+  - name: "docker-01"
+    type: "A"
+    value: "10.10.30.10"
+  - name: "*"
+    type: "A"
+    value: "10.10.30.10"

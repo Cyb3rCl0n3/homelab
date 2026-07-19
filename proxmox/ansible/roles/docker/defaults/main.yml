@@ -1,0 +1,8 @@
+# Host paths and pinned image tags for the Docker service stack.
+# Site-specific values (domain, upstreams, admin user) live in group_vars/docker.yml.
+docker_dir: /opt/docker
+
+adguard_image: adguard/adguardhome:v0.107.52
+caddy_image: caddy:2-alpine
+portainer_image: portainer/portainer-ce:2.21.4
+uptimekuma_image: louislam/uptime-kuma:1

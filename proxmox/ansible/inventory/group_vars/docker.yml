@@ -1,0 +1,12 @@
+# Vars for the [docker] host group.
+# NOTE: service_domain must match dns_zone in dns.yml so that *.<domain> records
+# (added there) line up with the Caddy vhosts here.
+service_domain: "homelab.local"
+
+# AdGuard forwards <service_domain> queries to the authoritative BIND master,
+# and everything else to the public upstream (with filtering).
+bind_master_ip: "10.10.10.11"
+adguard_upstream: "https://dns.quad9.net/dns-query"
+
+# AdGuard admin UI login. Password comes from vault (group_vars/all/vault.yml).
+adguard_admin_user: "admin"

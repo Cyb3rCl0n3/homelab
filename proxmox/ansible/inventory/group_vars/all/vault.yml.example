@@ -1,3 +1,4 @@
 target_user:
 target_password:
 ssh_public_key:
+adguard_admin_password:

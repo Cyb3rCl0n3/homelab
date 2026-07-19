@@ -1,0 +1,60 @@
+{{ ansible_managed | comment }}
+name: homelab
+
+networks:
+  proxy:
+    driver: bridge
+
+services:
+  caddy:
+    image: {{ caddy_image }}
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - {{ docker_dir }}/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - proxy
+
+  portainer:
+    image: {{ portainer_image }}
+    container_name: portainer
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data
+    networks:
+      - proxy
+
+  uptime-kuma:
+    image: {{ uptimekuma_image }}
+    container_name: uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - uptimekuma_data:/app/data
+    networks:
+      - proxy
+
+  adguardhome:
+    image: {{ adguard_image }}
+    container_name: adguardhome
+    restart: unless-stopped
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - {{ docker_dir }}/adguard/conf:/opt/adguardhome/conf
+      - adguard_work:/opt/adguardhome/work
+    networks:
+      - proxy
+
+volumes:
+  caddy_data:
+  caddy_config:
+  portainer_data:
+  uptimekuma_data:
+  adguard_work:

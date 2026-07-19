@@ -1,0 +1,33 @@
+{{ ansible_managed | comment }}
+# Pre-seeded so AdGuard skips the first-run wizard. Filtering only — local DNS
+# records are authoritative in BIND. AdGuard forwards {{ service_domain }} to BIND
+# and everything else to the public upstream.
+http:
+  address: 0.0.0.0:3000
+users:
+  - name: {{ adguard_admin_user }}
+    password: {{ adguard_admin_password | password_hash('bcrypt') }}
+auth_attempts: 5
+block_auth_min: 15
+dns:
+  bind_hosts:
+    - 0.0.0.0
+  port: 53
+  upstream_dns:
+    # Conditional upstream: local zone goes to the authoritative BIND master.
+    - "[/{{ service_domain }}/]{{ bind_master_ip }}"
+    - {{ adguard_upstream }}
+  bootstrap_dns:
+    - 9.9.9.10
+    - 149.112.112.10
+  upstream_mode: load_balance
+  enable_dnssec: true
+filtering:
+  protection_enabled: true
+  filtering_enabled: true
+filters:
+  - enabled: true
+    url: https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt
+    name: AdGuard DNS filter
+    id: 1
+schema_version: 27

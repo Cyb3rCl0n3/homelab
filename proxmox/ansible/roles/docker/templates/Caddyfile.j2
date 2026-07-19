@@ -1,0 +1,19 @@
+{{ ansible_managed | comment }}
+# Reverse proxy for the homelab Docker services.
+# `tls internal` issues certs from Caddy's own CA — trust it once per client, or
+# accept the browser warning. Names resolve via BIND: *.{{ service_domain }} -> this host.
+
+status.{{ service_domain }} {
+	tls internal
+	reverse_proxy uptime-kuma:3001
+}
+
+portainer.{{ service_domain }} {
+	tls internal
+	reverse_proxy portainer:9000
+}
+
+adguard.{{ service_domain }} {
+	tls internal
+	reverse_proxy adguardhome:3000
+}

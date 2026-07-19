@@ -10,3 +10,9 @@
   roles:
     - dns
   tags: dns
+
+- hosts: docker
+  become: true
+  roles:
+    - docker
+  tags: docker

@@ -35,6 +35,17 @@ locals {
       cores         = 1,
       memory        = 2048,
     roles = [] }
+
+    "docker-01" = {
+      vmid          = 3001,
+      template_vmid = 9000,
+      ip_address    = "10.10.30.10/24",
+      gateway       = "10.10.30.1",
+      vlan_id       = 30,
+      username      = "proxima",
+      cores         = 2,
+      memory        = 2048,
+    roles = ["docker"] }
   }
 }
 
@@ -48,5 +59,7 @@ module "vm" {
   gateway        = each.value.gateway
   vlan_id        = each.value.vlan_id
   username       = each.value.username
+  cores          = each.value.cores
+  memory         = each.value.memory
   ssh_public_key = var.PUBLIC_SSH_KEY
 }
