@@ -11,6 +11,12 @@
 
 # AdGuard binds :53. On Ubuntu, systemd-resolved's stub listener also holds :53,
 # so free it and let resolved keep resolving via its upstreams for the host itself.
+- name: Ensure systemd-resolved drop-in directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+    mode: "0755"
+
 - name: Disable systemd-resolved stub listener (frees port 53 for AdGuard)
   ansible.builtin.copy:
     dest: /etc/systemd/resolved.conf.d/adguard.conf
