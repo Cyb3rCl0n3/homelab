@@ -26,6 +26,21 @@
     mode: "0644"
   notify: Restart systemd-resolved
 
+# With the stub gone, 127.0.0.53 stops answering — so the host must use resolved's
+# real upstream list instead, or it loses DNS entirely (and image pulls fail).
+- name: Point resolv.conf at the non-stub resolver
+  ansible.builtin.file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+    force: true
+  notify: Restart systemd-resolved
+
+# Handlers normally run at the end of the play, but AdGuard cannot bind :53 until
+# the stub listener is actually released — so apply the restart now, not later.
+- name: Apply resolved changes before the stack starts
+  ansible.builtin.meta: flush_handlers
+
 - name: Ensure apt keyrings directory exists
   ansible.builtin.file:
     path: /etc/apt/keyrings
