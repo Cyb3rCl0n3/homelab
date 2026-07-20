@@ -30,4 +30,11 @@ filters:
     url: https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt
     name: AdGuard DNS filter
     id: 1
-schema_version: 27
+  - enabled: true
+    url: https://cdn.jsdelivr.net/gh/hufilter/hufilter@gh-pages/hufilter-adguard.txt
+    name: Hungarian DNS filter
+    id: 1
+# Must match the schema the pinned adguard_image expects (v0.107.52 -> 28).
+# AdGuard migrates and rewrites this file itself, so a stale value here causes
+# a config rewrite + restart on every run. Bump this when you bump the image tag.
+schema_version: 28
