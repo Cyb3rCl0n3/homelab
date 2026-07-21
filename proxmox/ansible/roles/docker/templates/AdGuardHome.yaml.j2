@@ -33,7 +33,11 @@ filters:
   - enabled: true
     url: https://cdn.jsdelivr.net/gh/hufilter/hufilter@gh-pages/hufilter-adguard.txt
     name: Hungarian DNS filter
-    id: 1
+    id: 2
+  - enabled: true
+    url: https://github.com/AdguardTeam/AdguardFilters/blob/master/MobileFilter/sections/adservers.txt
+    name: Adguard Mobile DNS Filter
+    id: 3
 # Must match the schema the pinned adguard_image expects (v0.107.52 -> 28).
 # AdGuard migrates and rewrites this file itself, so a stale value here causes
 # a config rewrite + restart on every run. Bump this when you bump the image tag.
