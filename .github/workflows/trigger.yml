@@ -110,9 +110,6 @@ jobs:
         working-directory: proxmox/ansible
     steps:
       - uses: actions/checkout@v4
-      - name: Install Ansible
-        run: |
-          pip install ansible
       - name: Write SSH key
         run: |
           echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
