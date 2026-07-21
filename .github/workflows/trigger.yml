@@ -18,7 +18,6 @@ jobs:
         working-directory: proxmox/terraform
     steps:
       - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v4
 
       - name: Terraform init
         run: terraform init -backend=false -input=false
