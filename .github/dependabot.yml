@@ -1,0 +1,30 @@
+# Dependabot keeps our pinned dependencies fresh.
+#
+# Because we pin GitHub Actions to immutable commit SHAs (see
+# docs/04-iac-pipeline.md), they never update on their own. Dependabot is what
+# proposes bumps: it reads the trailing "# v4" version comment, finds newer
+# releases, and opens a PR that updates BOTH the SHA and the comment together.
+# So "pinned" stays immutable without becoming "stale".
+version: 2
+
+updates:
+  # --- GitHub Actions (files in .github/workflows/) ---
+  - package-ecosystem: "github-actions"
+    directory: "/" # always "/"; Dependabot looks in .github/workflows for this ecosystem
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # Roll all action bumps into ONE pull request instead of one per action.
+      # PR noise is the #1 reason people disable Dependabot; grouping avoids it.
+      github-actions:
+        patterns: ["*"]
+
+  # --- Terraform (provider constraints in proxmox/terraform/versions.tf) ---
+  # Only real target today is bpg/proxmox (~> 0.70). Modules are local paths
+  # with no versions of their own, so nothing else here for Dependabot to bump.
+  - package-ecosystem: "terraform"
+    directory: "/proxmox/terraform"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
