@@ -30,7 +30,7 @@ jobs:
       run:
         working-directory: proxmox/terraform
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Terraform init
         run: terraform init -backend=false -input=false
@@ -86,7 +86,7 @@ jobs:
       run:
         working-directory: proxmox/terraform
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: terraform init
       - run: terraform plan -no-color
         env:
@@ -105,7 +105,7 @@ jobs:
     outputs:
       inventory_ready: ${{ steps.gen_inventory.outcome }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: terraform init
       - run: terraform apply -auto-approve
         env:
@@ -122,7 +122,7 @@ jobs:
       run:
         working-directory: proxmox/ansible
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Write SSH key
         run: |
           echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
