@@ -6,6 +6,19 @@ on:
     branches: [main]
     paths: ["proxmox/terraform/**", "proxmox/ansible/**", ".github/workflows/**"]
 
+# Least-privilege default for every job's GITHUB_TOKEN. Jobs that need more
+# (e.g. terraform-scan writes PR checks) elevate explicitly in their own block.
+permissions:
+  contents: read
+
+# Serialize whole-pipeline runs. The Terraform backend is a local file with no
+# state locking, so only one run may touch state / the lab at a time.
+# cancel-in-progress: false => a new run QUEUES behind the running one; we never
+# kill a run mid-apply, which could corrupt state or leave half-created VMs.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   terraform-scan:
     runs-on: [self-hosted, homelab]
@@ -17,7 +30,7 @@ jobs:
       run:
         working-directory: proxmox/terraform
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Terraform init
         run: terraform init -backend=false -input=false
@@ -40,7 +53,7 @@ jobs:
       #       -c 'tflint --init && tflint --format junit > tflint_results_junit.xml'
 
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: proxmox/terraform
@@ -50,7 +63,7 @@ jobs:
           output: proxmox/terraform/trivy_results_junit.xml
 
       - name: Checkov scan
-        uses: bridgecrewio/checkov-action@v12
+        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12
         with:
           directory: proxmox/terraform
           config_file: proxmox/terraform/.checkov.yaml
@@ -58,7 +71,7 @@ jobs:
           output_file_path: console,proxmox/terraform/checkov_results_junit.xml
 
       - name: Publish scan results
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2
         if: success() || failure()
         with:
           check_name: Terraform scan results
@@ -73,7 +86,7 @@ jobs:
       run:
         working-directory: proxmox/terraform
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - run: terraform init
       - run: terraform plan -no-color
         env:
@@ -92,7 +105,7 @@ jobs:
     outputs:
       inventory_ready: ${{ steps.gen_inventory.outcome }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - run: terraform init
       - run: terraform apply -auto-approve
         env:
@@ -109,7 +122,7 @@ jobs:
       run:
         working-directory: proxmox/ansible
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Write SSH key
         run: |
           echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
