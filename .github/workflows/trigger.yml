@@ -1,7 +1,6 @@
 name: Infra pipeline
 on:
   pull_request:
-    paths: ["proxmox/terraform/**", ".github/workflows/**"]
   push:
     branches: [main]
     paths: ["proxmox/terraform/**", "proxmox/ansible/**", ".github/workflows/**"]
