@@ -94,7 +94,9 @@ jobs:
           TF_VAR_PUBLIC_SSH_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
 
   terraform-apply:
-    if: github.event_name == 'push'
+    # Defense-in-depth: apply only ever runs on a push to main, even if the
+    # push trigger's branch filter is ever widened.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: terraform-scan
     runs-on: [self-hosted, homelab]
     environment: production
@@ -123,8 +125,12 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Write SSH key
+        # Pass the secret via env, not inline ${{ }} in the script, so its value
+        # is never interpolated into the shell command text.
+        env:
+          ANSIBLE_SSH_PRIVATE_KEY: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
         run: |
-          echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" | base64 -d > /tmp/homelab_ansible
+          echo "$ANSIBLE_SSH_PRIVATE_KEY" | base64 -d > /tmp/homelab_ansible
           chmod 600 /tmp/homelab_ansible
       - name: Run ansible playbook
         env:
