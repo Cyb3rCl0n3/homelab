@@ -100,6 +100,11 @@ jobs:
     needs: terraform-scan
     runs-on: [self-hosted, homelab]
     environment: production
+    # Proxmox creds are needed by both plan and apply, so set them once here.
+    env:
+      TF_VAR_PROXMOX_ENDPOINT: ${{ secrets.PROXMOX_ENDPOINT }}
+      TF_VAR_PROXMOX_API_TOKEN: ${{ secrets.PROXMOX_API_TOKEN }}
+      TF_VAR_PUBLIC_SSH_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
     defaults:
       run:
         working-directory: proxmox/terraform
@@ -108,11 +113,13 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: terraform init
-      - run: terraform apply -auto-approve
-        env:
-          TF_VAR_PROXMOX_ENDPOINT: ${{ secrets.PROXMOX_ENDPOINT }}
-          TF_VAR_PROXMOX_API_TOKEN: ${{ secrets.PROXMOX_API_TOKEN }}
-          TF_VAR_PUBLIC_SSH_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
+      # Save the plan, then apply exactly that plan file — apply executes
+      # precisely what was planned, with no implicit re-plan that could differ
+      # if state or the real infrastructure drifted between the two.
+      - name: Terraform plan
+        run: terraform plan -out=tfplan -input=false
+      - name: Terraform apply
+        run: terraform apply -input=false tfplan
       - id: gen_inventory
         run: terraform output -json > ../ansible/inventory/tf_output.json
 
