@@ -1,0 +1,53 @@
+# OpenSSF Scorecard — automated supply-chain security scoring.
+# Runs on GitHub-hosted ubuntu-latest (NOT the self-hosted homelab runner): it
+# only queries the GitHub API, needs no lab access, and shouldn't consume/expose
+# the private runner. Results go to the Security tab (SARIF) and, because
+# publish_results is true, to the public OpenSSF API for a README badge.
+name: Scorecard supply-chain security
+
+on:
+  # Re-score automatically whenever branch protection changes.
+  branch_protection_rule:
+  schedule:
+    - cron: "30 5 * * 1" # weekly, Monday 05:30 UTC
+  push:
+    branches: ["main"]
+
+# Least-privilege default. NOTE: a job-level permissions block REPLACES this
+# wholesale (it does not merge), so the job below re-declares every read it needs.
+permissions:
+  contents: read
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write # upload SARIF to the code-scanning / Security tab
+      id-token: write # OIDC, required by publish_results for the public badge
+      contents: read # checkout (re-declared: job perms replace, not merge)
+      actions: read # let Scorecard read workflow run data
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run Scorecard analysis
+        uses: ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc # v2.4.4
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - name: Upload SARIF as artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: scorecard-sarif
+          path: results.sarif
+          retention-days: 5
+
+      - name: Upload SARIF to code-scanning
+        uses: github/codeql-action/upload-sarif@4187e74d05793876e9989daffde9c3e66b4acd07 # v3
+        with:
+          sarif_file: results.sarif
