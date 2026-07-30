@@ -2,6 +2,7 @@
 # https://www.checkov.io/2.Basics/Configuring%20Checkov%20via%20CLI%20flags.html
 framework:
   - terraform
+  - secrets
 
 # This is a self-hosted local module; do not pull registry modules during scan.
 download-external-modules: false
