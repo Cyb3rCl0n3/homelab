@@ -61,5 +61,5 @@ module "vm" {
   username       = each.value.username
   cores          = each.value.cores
   memory         = each.value.memory
-  ssh_public_key = var.PUBLIC_SSH_KEY
+  ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAtTtC7Hiadz+Mr9Uxv5wbwzCLXcYKMZvmK+KTuqBTAe test@test"
 }
