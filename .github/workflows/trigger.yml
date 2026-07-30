@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   terraform-scan:
-    runs-on: [self-hosted, homelab]
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write # upload SARIF to Security > Code scanning
@@ -33,6 +33,11 @@ jobs:
           # Don't leave the GITHUB_TOKEN in .git/config; the workspace outlives
           # the job on a persistent self-hosted runner. No job here uses git.
           persist-credentials: false
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_wrapper: false
 
       - name: Terraform init
         run: terraform init -backend=false -input=false
@@ -82,7 +87,7 @@ jobs:
       - name: Checkov scan
         id: checkov
         continue-on-error: true
-        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12
+        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12.3114.0
         with:
           directory: proxmox/terraform
           config_file: proxmox/terraform/.checkov.yaml
