@@ -27,4 +27,6 @@ updates:
     directory: "/proxmox/terraform"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 3
     open-pull-requests-limit: 5
