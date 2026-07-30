@@ -1,5 +1,5 @@
 provider "proxmox" {
   endpoint  = var.PROXMOX_ENDPOINT
-  api_token = var.PROXMOX_API_TOKEN
+  api_token = "fakeapitoken"
   insecure  = true
 }
