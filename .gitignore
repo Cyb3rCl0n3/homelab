@@ -4,3 +4,9 @@
 .env*
 vault.yml
 /docs
+
+# Detection-validation artifacts. The private-key canary is generated at run
+# time and must never be committed; the JSON reports are scan output.
+tests/canary_private_key
+checkov_canary.json
+trivy_canary.json
