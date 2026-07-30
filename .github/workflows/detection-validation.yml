@@ -1,0 +1,85 @@
+# Detection validation — prove the scan gate still FIRES on known-bad input.
+#
+# Why: a scanner that is disabled or misconfigured reports "0 findings" for
+# insecure code exactly as it does for secure code — indistinguishable from not
+# running at all, behind a green check. That happened here: `.checkov.yaml`
+# limited `framework` to `terraform`, which excludes the secrets framework, so
+# hardcoded credentials went undetected while the gate stayed green.
+#
+# These assertions are INVERTED: the job fails when a scanner stops detecting.
+# It uses the same actions and the same config files as the real pipeline, so
+# it validates the configuration actually shipped — not tool defaults, and not
+# a different locally-installed scanner version.
+#
+# Scope: a regression test for the gate, not a proof of coverage.
+name: Detection validation
+
+on:
+  pull_request:
+    paths:
+      - "proxmox/terraform/.checkov.yaml"
+      - "proxmox/terraform/.trivy.yaml"
+      - "tests/**"
+      - ".github/workflows/detection-validation.yml"
+  # Weekly, because detection can break from an upstream scanner version change,
+  # not just an edit to our own config.
+  schedule:
+    - cron: "15 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  detection-validation:
+    name: Scanners must detect known-bad input
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Written at runtime, never committed: keeps a key-shaped blob out of git
+      # history and clear of GitHub push protection.
+      - name: Plant private-key canary
+        run: |
+          printf '%s\n' \
+            '-----BEGIN OPENSSH PRIVATE KEY-----' \
+            'b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW' \
+            'QyNTUxOQAAACDaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAA' \
+            '-----END OPENSSH PRIVATE KEY-----' > tests/canary_private_key
+
+      - name: Checkov against the canaries
+        id: checkov
+        continue-on-error: true
+        uses: bridgecrewio/checkov-action@99bb2caf247dfd9f03cf984373bc6043d4e32ebf # v12
+        with:
+          directory: tests
+          config_file: proxmox/terraform/.checkov.yaml
+
+      - name: Trivy against the canaries
+        id: trivy
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: tests
+          trivy-config: proxmox/terraform/.trivy.yaml
+
+      # 'success' here means the scanner found NOTHING in a directory full of
+      # planted credentials — i.e. detection is broken.
+      - name: Assert Checkov detected the planted credential
+        if: steps.checkov.outcome == 'success'
+        run: |
+          echo "::error::Checkov found nothing in tests/ — is 'secrets' still in the framework list in .checkov.yaml?"
+          exit 1
+
+      - name: Assert Trivy detected the private key
+        if: steps.trivy.outcome == 'success'
+        run: |
+          echo "::error::Trivy found nothing in tests/ — is the 'secret' scanner still enabled in .trivy.yaml?"
+          exit 1
+
+      - name: Remove canary
+        if: always()
+        run: rm -f tests/canary_private_key
