@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   terraform-scan:
-    runs-on: [self-hosted, homelab]
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write # upload SARIF to Security > Code scanning
