@@ -23,8 +23,7 @@ jobs:
     runs-on: [self-hosted, homelab]
     permissions:
       contents: read
-      checks: write
-      pull-requests: write
+      security-events: write # upload SARIF to Security > Code scanning
     defaults:
       run:
         working-directory: proxmox/terraform
@@ -51,31 +50,55 @@ jobs:
       #       ghcr.io/terraform-linters/tflint:latest \
       #       -c 'tflint --init && tflint --format junit > tflint_results_junit.xml'
 
+      # Both scanners run with continue-on-error so that a finding (exit-code 1)
+      # doesn't skip the SARIF uploads below — findings are exactly when the
+      # report matters. The explicit gate step at the end re-imposes the failure.
       - name: Trivy scan
+        id: trivy
+        continue-on-error: true
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: proxmox/terraform
           trivy-config: proxmox/terraform/.trivy.yaml
-          format: template
-          template: '@${{ github.workspace }}/proxmox/terraform/.trivy-junit.tpl'
-          output: proxmox/terraform/trivy_results_junit.xml
+          format: sarif
+          output: trivy.sarif
+
+      # A distinct `category` per tool is required: without it the second upload
+      # overwrites the first tool's results for this commit. Note fork PRs don't
+      # receive security-events: write, so this step would fail there — external
+      # fork PRs already require manual approval before any workflow runs.
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@4187e74d05793876e9989daffde9c3e66b4acd07 # v3
+        with:
+          sarif_file: trivy.sarif
+          category: trivy
 
       - name: Checkov scan
+        id: checkov
+        continue-on-error: true
         uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12
         with:
           directory: proxmox/terraform
           config_file: proxmox/terraform/.checkov.yaml
-          output_format: cli,junitxml
-          output_file_path: console,proxmox/terraform/checkov_results_junit.xml
+          output_format: cli,sarif
+          output_file_path: console,checkov.sarif
 
-      - name: Publish scan results
-        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2
-        if: success() || failure()
+      - name: Upload Checkov SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@4187e74d05793876e9989daffde9c3e66b4acd07 # v3
         with:
-          check_name: Terraform scan results
-          files: proxmox/terraform/*_junit.xml
-          action_fail: true
+          sarif_file: checkov.sarif
+          category: checkov
+
+      # Re-impose the gate the scanners' own exit codes would have applied,
+      # now that both reports have been uploaded.
+      - name: Gate on scan findings
+        if: steps.trivy.outcome == 'failure' || steps.checkov.outcome == 'failure'
+        run: |
+          echo "::error::Security findings detected - see Security > Code scanning"
+          exit 1
 
   terraform-plan:
     if: github.event_name == 'pull_request'
