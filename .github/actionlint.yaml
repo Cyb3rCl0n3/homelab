@@ -1,0 +1,13 @@
+# actionlint configuration.
+#
+# Declares the custom labels our self-hosted runner advertises. Without this,
+# actionlint reports `label "homelab" is unknown` for
+# `runs-on: [self-hosted, homelab]`.
+#
+# The label is kept deliberately rather than dropped: `runs-on: self-hosted`
+# alone would match ANY self-hosted runner, so jobs carrying the Proxmox token
+# and the Ansible SSH key could schedule onto a future, less-trusted runner.
+# Requiring both labels keeps that targeting explicit.
+self-hosted-runner:
+  labels:
+    - homelab

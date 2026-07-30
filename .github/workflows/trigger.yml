@@ -29,6 +29,10 @@ jobs:
         working-directory: proxmox/terraform
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Don't leave the GITHUB_TOKEN in .git/config; the workspace outlives
+          # the job on a persistent self-hosted runner. No job here uses git.
+          persist-credentials: false
 
       - name: Terraform init
         run: terraform init -backend=false -input=false
@@ -109,6 +113,10 @@ jobs:
         working-directory: proxmox/terraform
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Don't leave the GITHUB_TOKEN in .git/config; the workspace outlives
+          # the job on a persistent self-hosted runner. No job here uses git.
+          persist-credentials: false
       - run: terraform init
       - run: terraform plan -no-color
         env:
@@ -135,6 +143,10 @@ jobs:
       inventory_ready: ${{ steps.gen_inventory.outcome }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Don't leave the GITHUB_TOKEN in .git/config; the workspace outlives
+          # the job on a persistent self-hosted runner. No job here uses git.
+          persist-credentials: false
       - run: terraform init
       # Save the plan, then apply exactly that plan file — apply executes
       # precisely what was planned, with no implicit re-plan that could differ
@@ -154,6 +166,10 @@ jobs:
         working-directory: proxmox/ansible
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Don't leave the GITHUB_TOKEN in .git/config; the workspace outlives
+          # the job on a persistent self-hosted runner. No job here uses git.
+          persist-credentials: false
       - name: Write SSH key
         # Pass the secret via env, not inline ${{ }} in the script, so its value
         # is never interpolated into the shell command text.
