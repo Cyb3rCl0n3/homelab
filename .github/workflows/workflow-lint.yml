@@ -1,6 +1,6 @@
 # Lints and security-audits the workflow files themselves.
 #
-# Rationale: nothing else in this repo checks trigger.yml. Trivy and Checkov
+# Rationale: nothing else in this repo checks infra-pipeline.yml. Trivy and Checkov
 # scan Terraform, not GitHub Actions — so a malformed or insecure workflow
 # (a broken `if:` guard, a secret interpolated into a `run:` block, an action
 # drifting off its SHA pin) would ship unnoticed. This job is what protects the
