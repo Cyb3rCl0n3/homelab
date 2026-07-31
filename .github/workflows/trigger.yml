@@ -124,7 +124,8 @@ jobs:
           exit 1
 
   terraform-plan:
-    if: github.event_name == 'pull_request'
+    # Never let a Dependabot PR reach the self-hosted runner.
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
     needs: terraform-scan
     runs-on: [self-hosted, homelab]
     defaults:
