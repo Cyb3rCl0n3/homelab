@@ -1,13 +1,4 @@
 # Lints and security-audits the workflow files themselves.
-#
-# Rationale: nothing else in this repo checks infra-pipeline.yml. Trivy and Checkov
-# scan Terraform, not GitHub Actions — so a malformed or insecure workflow
-# (a broken `if:` guard, a secret interpolated into a `run:` block, an action
-# drifting off its SHA pin) would ship unnoticed. This job is what protects the
-# CI hardening from silently regressing.
-#
-# Runs on GitHub-hosted ubuntu-latest, not the self-hosted homelab runner:
-# it needs no lab access, and hosted minutes are free for a public repo.
 name: Workflow lint
 
 on:
@@ -21,7 +12,7 @@ permissions:
 
 jobs:
   lint:
-    name: Lint and audit workflows
+    name: lint and audit workflows
     runs-on: ubuntu-latest
     permissions:
       contents: read

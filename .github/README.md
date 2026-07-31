@@ -11,7 +11,7 @@
 
 ## Infrastructure pipeline ([infra-pipeline.yml](./workflows/infra-pipeline.yml))
 
-This is the main workflow handling the infrastructure using Terraform and Ansible alongside with SAST tools such as Trivy and Checkov.
+Main workflow handling the infrastructure using Terraform and Ansible, with IaC security scanning via Trivy and Checkov.
 
 |Event|Path|Jobs|
 |---|---|---|
@@ -65,4 +65,24 @@ flowchart LR
 **SSH key material handling:** The Ansible private key is passed via `env:` not inline `${{ }}` in the script, preventing interpolation into shell command text (which would log it). The base64-encoded secret is decoded only at runtime, and the file is immediately `chmod 600` restricted.
 
 ## Workflow lint (workflow.yml)
+Lints and security-audits the workflow files themselves, via actionlint and zizmor.
+
+|Event|Path|Jobs|
+|---|---|---|
+|Pull request|any|`lint and audit workflows`|
+|Push to main|`.github/workflows/**`| `lint and audit workflows`|
+
+### Diagram
+```mermaid
+flowchart LR
+
+  subgraph TL["Lint and audit workflows"]
+    direction LR
+    A[actionlint] --> B[zizmor]
+  end
+```
+### Actionlint
+...
+
+### Zizmor
 ...
