@@ -13,6 +13,8 @@ updates:
     directory: "/" # always "/"; Dependabot looks in .github/workflows for this ecosystem
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
     groups:
       # Roll all action bumps into ONE pull request instead of one per action.
