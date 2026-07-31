@@ -30,3 +30,7 @@ variable "memory" {
   description = "Amount of RAM in MB"
   type        = number
 }
+variable "ssh_public_key" {
+  description = "Public SSH key for the user account"
+  type        = string
+}
