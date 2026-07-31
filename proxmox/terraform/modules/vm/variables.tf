@@ -1,5 +1,5 @@
 variable "hostname" {
-  type        = string
+  type = string
 }
 variable "vmid" {
   description = "ID of the VM"
@@ -14,13 +14,13 @@ variable "ip_address" {
   type        = string
 }
 variable "gateway" {
-  type        = string
+  type = string
 }
 variable "vlan_id" {
-  type        = number
+  type = number
 }
 variable "username" {
-  type        = string
+  type = string
 }
 variable "cores" {
   description = "Number of CPU cores"
