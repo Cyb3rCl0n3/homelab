@@ -5,8 +5,7 @@ on:
     branches: [main]
     paths: ["proxmox/terraform/**", "proxmox/ansible/**", ".github/workflows/**"]
 
-# Least-privilege default for every job's GITHUB_TOKEN. Jobs that need more
-# (e.g. terraform-scan writes PR checks) elevate explicitly in their own block.
+# Least-privilege default for every job's GITHUB_TOKEN.
 permissions:
   contents: read
 
@@ -48,16 +47,31 @@ jobs:
       - name: Terraform validate
         run: terraform validate
 
-      # - name: Tflint scan
-      #   run: |
-      #     docker run --rm \
-      #       -v "$(pwd):/data" \
-      #       -w /data \
-      #       --user "$(id -u):$(id -g)" \
-      #       -e TFLINT_PLUGIN_DIR=/data/.tflint.d \
-      #       --entrypoint sh \
-      #       ghcr.io/terraform-linters/tflint:latest \
-      #       -c 'tflint --init && tflint --format junit > tflint_results_junit.xml'
+      # tflint complements Trivy/Checkov rather than overlapping them: those scan
+      # for security misconfiguration, tflint catches Terraform correctness and
+      # hygiene (untyped variables, missing version constraints) that the security
+      # scanners have no rules for at all.
+      - name: Tflint Install 
+        uses: terraform-linters/setup-tflint@6e1e0642c0289bd619021bf6b34e3c08ed1e005a # v6.3.0
+
+      # Runs from the repo ROOT with --chdir, deliberately overriding this job's
+      # working-directory default. tflint writes SARIF paths relative to its own
+      # working directory, but code-scanning resolves them against the repo root.
+      # From proxmox/terraform you get "inventory.tf", so every alert links to a
+      # file that doesn't exist there. From the root you get the real path.
+      - name: Tflint scan
+        id: tflint
+        continue-on-error: true
+        working-directory: .
+        run: tflint --recursive --chdir=proxmox/terraform --format sarif > tflint.sarif
+
+      - name: Upload tflint SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        with:
+          sarif_file: tflint.sarif
+          category: tflint
+
 
       # Both scanners run with continue-on-error so that a finding (exit-code 1)
       # doesn't skip the SARIF uploads below — findings are exactly when the
@@ -110,7 +124,8 @@ jobs:
           exit 1
 
   terraform-plan:
-    if: github.event_name == 'pull_request'
+    # Never let a Dependabot PR reach the self-hosted runner.
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
     needs: terraform-scan
     runs-on: [self-hosted, homelab]
     defaults:
