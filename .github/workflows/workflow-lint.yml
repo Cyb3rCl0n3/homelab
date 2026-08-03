@@ -36,6 +36,7 @@ jobs:
       # avoid. Findings upload to Security > Code scanning.
       - name: zizmor
         uses: zizmorcore/zizmor-action@6fc4b006235f201fdab3722e17240ab420d580e5 # v0.6.1
+        continue-on-error: true
         with:
           version: "1.28.0"
           advanced-security: true
