@@ -1,18 +1,28 @@
-- hosts: all
+- name: Configure all hosts
+  hosts: all
   become: true
   gather_facts: false
   roles:
     - common
   tags: common
 
-- hosts: dns
+- name: Configure DNS
+  hosts: dns
   become: true
   roles:
     - dns
   tags: dns
 
-- hosts: docker
+- name: Configure Docker
+  hosts: docker
   become: true
   roles:
     - docker
   tags: docker
+
+- name: Configure Kasm
+  hosts: kasm
+  become: true
+  roles:
+    - kasm
+  tags: kasm
