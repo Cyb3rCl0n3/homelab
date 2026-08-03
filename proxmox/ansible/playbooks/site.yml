@@ -19,10 +19,3 @@
   roles:
     - docker
   tags: docker
-
-- name: Configure Kasm
-  hosts: kasm
-  become: true
-  roles:
-    - kasm
-  tags: kasm
