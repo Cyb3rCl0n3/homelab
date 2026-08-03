@@ -128,9 +128,6 @@ jobs:
     permissions:
       contents: read
       security-events: write # upload SARIF to Security > Code scanning
-    defaults:
-      run:
-        working-directory: proxmox/ansible
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -142,10 +139,10 @@ jobs:
         continue-on-error: true
         uses: ansible/ansible-lint@262624cd0ab22a4221293216856c59671ce7aa5e # v26.6.0
         with:
-          working_directory: proxmox/ansible
+          working_directory: .
           args: >-
-            . -c proxmox/ansible/.ansible-lint --nocolor
-            --sarif-file proxmox/ansible/ansible-lint.sarif
+            proxmox/ansible -c proxmox/ansible/.ansible-lint --nocolor
+            --sarif-file ansible-lint.sarif
 
       - name: Upload ansible-lint SARIF
         if: always()
