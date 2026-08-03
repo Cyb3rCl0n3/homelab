@@ -85,7 +85,7 @@ jobs:
           scan-ref: proxmox/terraform
           trivy-config: proxmox/terraform/.trivy.yaml
           format: sarif
-          output: trivy.sarif
+          output: trivy-terraform.sarif
 
       # A distinct `category` per tool is required: without it the second upload
       # overwrites the first tool's results for this commit. Note fork PRs don't
@@ -95,8 +95,8 @@ jobs:
         if: always()
         uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
         with:
-          sarif_file: trivy.sarif
-          category: trivy
+          sarif_file: trivy-terraform.sarif
+          category: trivy-terraform
 
       - name: Checkov scan
         id: checkov
@@ -106,14 +106,14 @@ jobs:
           directory: proxmox/terraform
           config_file: proxmox/terraform/.checkov.yaml
           output_format: cli,sarif
-          output_file_path: console,checkov.sarif
+          output_file_path: console,checkov-terraform.sarif
 
       - name: Upload Checkov SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
         with:
-          sarif_file: checkov.sarif
-          category: checkov
+          sarif_file: checkov-terraform.sarif
+          category: checkov-terraform
 
       # Re-impose the gate the scanners' own exit codes would have applied,
       # now that both reports have been uploaded.
@@ -122,11 +122,62 @@ jobs:
         run: |
           echo "::error::Security findings detected - see Security > Code scanning"
           exit 1
+    
+  ansible-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # upload SARIF to Security > Code scanning
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Don't leave the GITHUB_TOKEN in .git/config; the workspace outlives
+          # the job on a persistent self-hosted runner. No job here uses git.
+          persist-credentials: false
+      - name: Ansible-lint scan
+        id: ansible-lint
+        continue-on-error: true
+        uses: ansible/ansible-lint@262624cd0ab22a4221293216856c59671ce7aa5e # v26.6.0
+        with:
+          working_directory: .
+          args: >-
+            proxmox/ansible -c proxmox/ansible/.ansible-lint --nocolor
+            --sarif-file ansible-lint.sarif
+
+      - name: Upload ansible-lint SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        with:
+          sarif_file: ansible-lint.sarif
+          category: ansible-lint
+
+      - name: Checkov scan
+        id: checkov
+        continue-on-error: true
+        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12.3114.0
+        with:
+          directory: proxmox/ansible
+          config_file: proxmox/ansible/.checkov.yaml
+          output_format: cli,sarif
+          output_file_path: console,checkov-ansible.sarif
+      
+      - name: Upload Checkov SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        with:
+          sarif_file: checkov-ansible.sarif
+          category: checkov-ansible
+
+      - name: Gate on scan findings    
+        if: steps.ansible-lint.outcome == 'failure' || steps.checkov.outcome == 'failure'
+        run: |
+          echo "::error::Security findings detected - see Security > Code scanning"
+          exit 1
 
   terraform-plan:
     # Never let a Dependabot PR reach the self-hosted runner.
     if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
-    needs: terraform-scan
+    needs: [terraform-scan, ansible-scan]
     runs-on: [self-hosted, homelab]
     defaults:
       run:
@@ -148,7 +199,7 @@ jobs:
     # Defense-in-depth: apply only ever runs on a push to main, even if the
     # push trigger's branch filter is ever widened.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: terraform-scan
+    needs: [terraform-scan, ansible-scan]
     runs-on: [self-hosted, homelab]
     environment: production
     # Proxmox creds are needed by both plan and apply, so set them once here.

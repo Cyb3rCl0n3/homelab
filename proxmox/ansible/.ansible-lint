@@ -1,0 +1,24 @@
+# ansible-lint config for the Ansible tree.
+# https://ansible.readthedocs.io/projects/lint/configuring/
+#
+# Enforced profile: every rule in `production` fails the build unless it appears
+# in warn_list below. This matches how the Terraform side already behaves --
+# Trivy and Checkov gate the PR rather than merely reporting.
+profile: production
+
+# Never reach out to Ansible Galaxy during a lint run. This tree declares no
+# external roles or collections, so a fetch could only add a failure mode -- and
+# a scanner that goes red for network reasons is one people learn to ignore.
+offline: true
+
+# Reported but NOT fatal. These land in Security > Code scanning as
+# level=warning (ansible-lint's SARIF output preserves the distinction), so they
+# stay visible without blocking a merge.
+#
+# var-naming[no-role-prefix] wants every role variable prefixed with its role
+# name -- 15 renames that ripple into each role's own Jinja templates. It is an
+# idiom rule: nothing about the prefix changes what a playbook is permitted to
+# do. The rules that DO carry security weight -- no-log-passwords,
+# risky-file-permissions, risky-shell-pipe, partial-become -- remain fatal.
+warn_list:
+  - var-naming
