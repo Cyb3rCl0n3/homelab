@@ -1,5 +1,6 @@
 *.tfvars*
 *.tfstate*
+*ini
 .terraform
 .env*
 vault.yml
