@@ -38,23 +38,29 @@ jobs:
   detection-validation:
     name: Scanners must detect known-bad input
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [">=3.10"]
+
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      # Written at runtime, never committed: keeps a key-shaped blob out of git
-      # history and clear of GitHub push protection.
-      - name: Plant private-key canary
-        run: |
-          printf '%s\n' \
-            '-----BEGIN OPENSSH PRIVATE KEY-----' \
-            'b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW' \
-            'QyNTUxOQAAACDaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAKEaAA' \
-            '-----END OPENSSH PRIVATE KEY-----' > tests/canary_private_key
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: tests/requirements.txt
+      - run: pip install -r tests/requirements.txt
+
+      - name: Setup Fixtures
+        run: python3 tests/fixtures/key_gen.py
 
       - name: Checkov against the canaries
         uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12.3114.0
+        continue-on-error: true
         with:
           directory: tests
           config_file: proxmox/terraform/.checkov.yaml
@@ -62,32 +68,23 @@ jobs:
           output_format: cli,json
           output_file_path: console,checkov_canary.json
 
-      - name: Assert Checkov detected the planted credential
-        run: |
-          if ! python3 -c "import json,sys;d=json.load(open('checkov_canary.json'));b=d if isinstance(d,list) else [d];sys.exit(0 if sum(x.get('summary',{}).get('failed',0) for x in b) else 1)"; then
-            echo "::error::Checkov found nothing in tests/ - is 'secrets' still in the framework list in .checkov.yaml?"
-            exit 1
-          fi
-          echo "OK - Checkov detected the planted credential."
-
       - name: Trivy against the canaries
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        continue-on-error: true
         with:
           scan-type: fs
           scan-ref: tests
           trivy-config: proxmox/terraform/.trivy.yaml
-          exit-code: "0" # override .trivy.yaml's exit-code: 1 so the step stays green
+          exit-code: "0"
           format: json
           output: trivy_canary.json
 
-      - name: Assert Trivy detected the private key
-        run: |
-          if ! python3 -c "import json,sys;d=json.load(open('trivy_canary.json'));sys.exit(0 if any(r.get('Secrets') for r in (d.get('Results') or [])) else 1)"; then
-            echo "::error::Trivy found no secret in tests/ - is the 'secret' scanner still enabled in .trivy.yaml?"
-            exit 1
-          fi
-          echo "OK - Trivy detected the private key."
+      - name: Run detection tests
+        env:
+          CHECKOV_JSON: checkov_canary.json
+          TRIVY_JSON: trivy_canary.json
+        run: python3 -m pytest tests/test_detections.py -v
 
-      - name: Remove canary and scan artifacts
+      - name: Cleanup test artifacts
         if: always()
-        run: rm -f tests/canary_private_key checkov_canary.json trivy_canary.json
+        run: rm -f checkov_canary.json trivy_canary.json

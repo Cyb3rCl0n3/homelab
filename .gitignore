@@ -6,8 +6,10 @@
 vault.yml
 /docs
 
-# Detection-validation artifacts. The private-key canary is generated at run
-# time and must never be committed; the JSON reports are scan output.
-tests/canary_private_key
+tests/fixtures/private_key.tf
 checkov_canary.json
 trivy_canary.json
+checkov_fixtures.json
+trivy_fixtures.json
+__pycache__/
+.pytest_cache/
