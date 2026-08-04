@@ -55,6 +55,9 @@ jobs:
           cache-dependency-path: tests/requirements.txt
       - run: pip install -r tests/requirements.txt
 
+      - name: Setup Fixtures
+        run: python3 tests/fixtures/key_gen.py
+
       - name: Checkov against the canaries
         uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12.3114.0
         continue-on-error: true
