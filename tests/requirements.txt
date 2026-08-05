@@ -1,1 +1,1 @@
-pytest>=9.x
+pytest>=9.1
