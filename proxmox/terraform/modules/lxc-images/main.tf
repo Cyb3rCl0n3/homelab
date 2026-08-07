@@ -9,7 +9,7 @@ resource "proxmox_virtual_environment_container" "template" {
     nesting = true
   }
 
-  cpu {cores = var.cores}
+  cpu { cores = var.cores }
   memory { dedicated = var.memory }
 
   operating_system {
@@ -18,7 +18,7 @@ resource "proxmox_virtual_environment_container" "template" {
 
   disk {
     datastore_id = "local-lvm"
-    size      = var.disk_size
+    size         = var.disk_size
   }
 
   network_interface {
