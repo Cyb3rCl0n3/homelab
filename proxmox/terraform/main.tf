@@ -13,6 +13,10 @@ module "debian_template" {
 }
 
 locals {
+  # LXC containers are built straight from vztmpl
+  # https://bpg.sh/docs/resources/virtual_environment_file/?h=vztmpl#container-template-vztmpl
+  ubuntu_lxc_template = "local:vztmpl/ubuntu-26.04-standard_26.04-1_amd64.tar.zst"
+
   vms = {
     "dns-01" = {
       vmid          = 1001,
@@ -47,6 +51,19 @@ locals {
       memory        = 2048,
     roles = ["docker"] }
   }
+
+  lxc = {
+    "tunnel-01" = {
+      vmid             = 4001,
+      template_file_id = local.ubuntu_lxc_template,
+      ip_address       = "10.10.40.2/24",
+      gateway          = "10.10.40.1",
+      vlan_id          = 40,
+      cores            = 1,
+      memory           = 512,
+      disk_size        = 8,
+    roles = ["tunnel"] }
+  }
 }
 
 module "vm" {
@@ -62,4 +79,21 @@ module "vm" {
   cores          = each.value.cores
   memory         = each.value.memory
   ssh_public_key = var.PUBLIC_SSH_KEY
+
+  depends_on = [module.ubuntu_template, module.debian_template]
+}
+
+module "lxc" {
+  source           = "./modules/lxc"
+  for_each         = local.lxc
+  hostname         = each.key
+  vmid             = each.value.vmid
+  template_file_id = each.value.template_file_id
+  ip_address       = each.value.ip_address
+  gateway          = each.value.gateway
+  vlan_id          = each.value.vlan_id
+  cores            = each.value.cores
+  memory           = each.value.memory
+  disk_size        = each.value.disk_size
+  ssh_public_key   = var.PUBLIC_SSH_KEY
 }

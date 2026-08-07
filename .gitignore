@@ -5,6 +5,7 @@
 .env*
 vault.yml
 /docs
+.vscode
 
 tests/fixtures/private_key.tf
 checkov_canary.json
