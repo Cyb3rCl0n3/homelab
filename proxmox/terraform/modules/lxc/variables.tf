@@ -29,9 +29,6 @@ variable "gateway" {
 variable "vlan_id" {
   type = number
 }
-variable "username" {
-  type = string
-}
 variable "cores" {
   description = "Number of CPU cores"
   type        = number

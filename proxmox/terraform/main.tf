@@ -59,7 +59,6 @@ locals {
       ip_address       = "10.10.40.2/24",
       gateway          = "10.10.40.1",
       vlan_id          = 40,
-      username         = "proxima",
       cores            = 1,
       memory           = 512,
       disk_size        = 8,
@@ -93,7 +92,6 @@ module "lxc" {
   ip_address       = each.value.ip_address
   gateway          = each.value.gateway
   vlan_id          = each.value.vlan_id
-  username         = each.value.username
   cores            = each.value.cores
   memory           = each.value.memory
   disk_size        = each.value.disk_size
