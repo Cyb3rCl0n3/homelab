@@ -1,0 +1,11 @@
+# kasm_version is the release line only (no build hash) — Kasm publishes a
+# "-latest" tarball per version line, so this doesn't need updating on every
+# patch release, only on a deliberate major/minor version bump. Check
+# https://kasm.com/downloads before bumping.
+kasm_version: "1.19.0"
+kasm_release_url: "https://kasm-static-content.s3.amazonaws.com/kasm_release_{{ kasm_version }}-latest.tar.gz"
+kasm_download_dest: "/tmp/kasm_release_{{ kasm_version }}.tar.gz"
+kasm_extract_dir: /tmp
+# Megabytes, not a unit-suffixed string — install.sh's --swap-size takes a
+# plain number (e.g. 4096 for 4GB).
+kasm_swap_size: "4096"
