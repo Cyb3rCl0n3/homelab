@@ -1,0 +1,77 @@
+# Kasm ships its own installer (install.sh) that provisions Docker and every
+# Kasm service container itself — this role's job is just to get that script
+# onto the host and run it once, not to manage the resulting containers.
+
+- name: Fail early if Kasm credentials are not configured
+  ansible.builtin.assert:
+    that:
+      - kasm_admin_password is defined and kasm_admin_password | length > 0
+      - kasm_user_password is defined and kasm_user_password | length > 0
+    fail_msg: >-
+      kasm_admin_password / kasm_user_password are missing. Set them in
+      inventory/group_vars/all/vault.yml (see vault.yml.example) — without
+      this the installer generates random credentials that only ever appear
+      once, in the install log.
+
+# install.sh is not safely re-runnable against an existing install, so guard
+# the whole install on the marker Kasm itself creates (a symlink to the
+# active release under /opt/kasm).
+- name: Check whether Kasm is already installed
+  ansible.builtin.stat:
+    path: /opt/kasm/current
+  register: kasm_installed
+
+- name: Download Kasm Workspaces release
+  ansible.builtin.get_url:
+    url: "{{ kasm_release_url }}"
+    dest: "{{ kasm_download_dest }}"
+    mode: "0644"
+  when: not kasm_installed.stat.exists
+
+- name: Extract Kasm Workspaces release
+  ansible.builtin.unarchive:
+    src: "{{ kasm_download_dest }}"
+    dest: "{{ kasm_extract_dir }}"
+    remote_src: true
+  when: not kasm_installed.stat.exists
+
+# no_log because --admin-password/--user-password are passed as CLI args.
+# Caveat this doesn't fully solve: those args are briefly visible to anyone
+# who can run `ps aux` on this host during the install itself, same as any
+# CLI-flag secret — no_log only keeps them out of Ansible's own output/logs.
+- name: Run Kasm Workspaces installer
+  ansible.builtin.command:
+    # Every flag here exists to stop install.sh blocking on an interactive
+    # prompt — it has no TTY under the command module, so any prompt hangs
+    # the play forever with no output and no CPU activity. Do not remove:
+    #   --accept-eula          license prompt
+    #   --skip-v4l2loopback    Ubuntu cloud images ship linux-image-virtual,
+    #                          which has no videodev module, so webcam support
+    #                          fails and asks y/n. Skipped rather than ignored.
+    #   --ignore-dep-failures  same class of prompt for other optional deps
+    #                          (rclone, wireguard, fuse).
+    cmd: >-
+      bash install.sh
+      --accept-eula
+      --skip-v4l2loopback
+      --ignore-dep-failures
+      --swap-size {{ kasm_swap_size }}
+      --admin-password {{ kasm_admin_password }}
+      --user-password {{ kasm_user_password }}
+    chdir: "{{ kasm_extract_dir }}/kasm_release"
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    # install.sh installs Docker via apt under the hood. needrestart pops an
+    # interactive whiptail dialog ("which services should be restarted?")
+    # that DEBIAN_FRONTEND alone does not suppress — it hangs the command
+    # module on a blocked read() with zero CPU activity if left unset.
+    NEEDRESTART_MODE: a
+  register: kasm_install_result
+  changed_when: true
+  no_log: false
+  when: not kasm_installed.stat.exists
+
+- name: Report install result
+  ansible.builtin.debug:
+    msg: "Kasm installed. Web UI on https://{{ ansible_host }} — log in with the admin/user credentials from vault.yml, not the installer's random defaults."
+  when: not kasm_installed.stat.exists

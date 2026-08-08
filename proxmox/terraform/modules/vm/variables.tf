@@ -34,3 +34,8 @@ variable "ssh_public_key" {
   description = "Public SSH key for the user account"
   type        = string
 }
+variable "disk_size" {
+  description = "Root disk size in GB. Grows the cloned disk post-clone; leave unset to keep the template's size."
+  type        = number
+  default     = null
+}

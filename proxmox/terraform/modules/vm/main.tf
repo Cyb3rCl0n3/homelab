@@ -12,6 +12,15 @@ resource "proxmox_virtual_environment_vm" "vm" {
   cpu { cores = var.cores }
   memory { dedicated = var.memory }
 
+  dynamic "disk" {
+    for_each = var.disk_size == null ? [] : [var.disk_size]
+    content {
+      datastore_id = "local-lvm"
+      interface    = "virtio0"
+      size         = disk.value
+    }
+  }
+
   network_device {
     bridge  = "vmbr1"
     vlan_id = var.vlan_id
