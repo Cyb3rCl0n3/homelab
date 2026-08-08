@@ -2,7 +2,10 @@
   ansible.builtin.raw: cloud-init status --wait
   register: cloud_init_result
   changed_when: false
-  failed_when: cloud_init_result.rc not in [0, 2]
+  # rc 127 ("cloud-init: command not found") is expected on LXC containers
+  # built straight from a vztmpl — Proxmox handles their hostname/IP/SSH-key
+  # setup itself, there's no cloud-init to wait for. Not a failure.
+  failed_when: cloud_init_result.rc not in [0, 2, 127]
 
 - name: Gather facts now that the host is ready
   ansible.builtin.setup:
