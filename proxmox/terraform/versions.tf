@@ -10,5 +10,13 @@ terraform {
       source  = "bpg/proxmox"
       version = "~> 0.70"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 }
