@@ -194,6 +194,10 @@ jobs:
           TF_VAR_PROXMOX_ENDPOINT: ${{ secrets.PROXMOX_ENDPOINT }}
           TF_VAR_PROXMOX_API_TOKEN: ${{ secrets.PROXMOX_API_TOKEN }}
           TF_VAR_PUBLIC_SSH_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
+          TF_VAR_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          TF_VAR_CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
 
   terraform-apply:
     # Defense-in-depth: apply only ever runs on a push to main, even if the
@@ -207,6 +211,10 @@ jobs:
       TF_VAR_PROXMOX_ENDPOINT: ${{ secrets.PROXMOX_ENDPOINT }}
       TF_VAR_PROXMOX_API_TOKEN: ${{ secrets.PROXMOX_API_TOKEN }}
       TF_VAR_PUBLIC_SSH_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
+      TF_VAR_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      TF_VAR_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      TF_VAR_CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      TF_VAR_CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
     defaults:
       run:
         working-directory: proxmox/terraform
