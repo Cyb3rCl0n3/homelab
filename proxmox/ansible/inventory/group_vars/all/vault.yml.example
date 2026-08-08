@@ -2,3 +2,14 @@ target_user:
 target_password:
 ssh_public_key:
 adguard_admin_password:
+
+# Kasm (roles/kasm). Set both before the first run — otherwise install.sh
+# generates random credentials that are only ever shown once, in its own
+# install log, and never captured by Ansible.
+kasm_admin_password:
+kasm_user_password:
+
+# Tunnel (roles/tunnel). Not something you choose — it comes out of Terraform
+# after `terraform apply` in proxmox/terraform:
+#   terraform output -raw cloudflare_tunnel_token
+cloudflare_tunnel_token:
