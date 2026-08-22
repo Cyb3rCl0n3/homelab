@@ -3,3 +3,7 @@ provider "proxmox" {
   api_token = var.PROXMOX_API_TOKEN
   insecure  = true
 }
+
+provider "cloudflare" {
+  api_token = var.CLOUDFLARE_API_TOKEN
+}

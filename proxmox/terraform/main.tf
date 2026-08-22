@@ -19,7 +19,7 @@ locals {
 
   vms = {
     "dns-01" = {
-      vmid          = 1001,
+      vmid          = 1011,
       template_vmid = 9001,
       ip_address    = "10.10.10.11/24",
       gateway       = "10.10.10.1",
@@ -30,7 +30,7 @@ locals {
     roles = ["dns"] }
 
     "ubuntu-02" = {
-      vmid          = 1002,
+      vmid          = 1010,
       template_vmid = 9000,
       ip_address    = "10.10.10.10/24",
       gateway       = "10.10.10.1",
@@ -41,7 +41,7 @@ locals {
     roles = [] }
 
     "docker-01" = {
-      vmid          = 3001,
+      vmid          = 3010,
       template_vmid = 9000,
       ip_address    = "10.10.30.10/24",
       gateway       = "10.10.30.1",
@@ -50,11 +50,23 @@ locals {
       cores         = 2,
       memory        = 2048,
     roles = ["docker"] }
+
+    "kasm-01" = {
+      vmid          = 4010,
+      template_vmid = 9000,
+      ip_address    = "10.10.40.10/24",
+      gateway       = "10.10.40.1",
+      vlan_id       = 40,
+      username      = "proxima",
+      cores         = 2,
+      memory        = 4096,
+      disk_size     = 60,
+    roles = ["kasm"] }
   }
 
   lxc = {
     "tunnel-01" = {
-      vmid             = 4001,
+      vmid             = 4002,
       template_file_id = local.ubuntu_lxc_template,
       ip_address       = "10.10.40.2/24",
       gateway          = "10.10.40.1",
@@ -78,6 +90,7 @@ module "vm" {
   username       = each.value.username
   cores          = each.value.cores
   memory         = each.value.memory
+  disk_size      = try(each.value.disk_size, null)
   ssh_public_key = var.PUBLIC_SSH_KEY
 
   depends_on = [module.ubuntu_template, module.debian_template]
