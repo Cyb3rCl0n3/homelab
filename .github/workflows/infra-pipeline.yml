@@ -67,7 +67,7 @@ jobs:
 
       - name: Upload tflint SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         with:
           sarif_file: tflint.sarif
           category: tflint
@@ -93,7 +93,7 @@ jobs:
       # fork PRs already require manual approval before any workflow runs.
       - name: Upload Trivy SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         with:
           sarif_file: trivy-terraform.sarif
           category: trivy-terraform
@@ -101,7 +101,7 @@ jobs:
       - name: Checkov scan
         id: checkov
         continue-on-error: true
-        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12.3114.0
+        uses: bridgecrewio/checkov-action@1246d92f57abae29d5db5f9aeeed2a9813e52d7d # v12.3117.0
         with:
           directory: proxmox/terraform
           config_file: proxmox/terraform/.checkov.yaml
@@ -110,7 +110,7 @@ jobs:
 
       - name: Upload Checkov SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         with:
           sarif_file: checkov-terraform.sarif
           category: checkov-terraform
@@ -137,7 +137,7 @@ jobs:
       - name: Ansible-lint scan
         id: ansible-lint
         continue-on-error: true
-        uses: ansible/ansible-lint@262624cd0ab22a4221293216856c59671ce7aa5e # v26.6.0
+        uses: ansible/ansible-lint@665d9e07a1943254d2910faffc106adaf7ea7294 # v26.8.0
         with:
           working_directory: .
           args: >-
@@ -146,7 +146,7 @@ jobs:
 
       - name: Upload ansible-lint SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         with:
           sarif_file: ansible-lint.sarif
           category: ansible-lint
@@ -154,7 +154,7 @@ jobs:
       - name: Checkov scan
         id: checkov
         continue-on-error: true
-        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12.3114.0
+        uses: bridgecrewio/checkov-action@1246d92f57abae29d5db5f9aeeed2a9813e52d7d # v12.3117.0
         with:
           directory: proxmox/ansible
           config_file: proxmox/ansible/.checkov.yaml
@@ -163,7 +163,7 @@ jobs:
       
       - name: Upload Checkov SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         with:
           sarif_file: checkov-ansible.sarif
           category: checkov-ansible
