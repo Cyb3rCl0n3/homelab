@@ -35,7 +35,7 @@ jobs:
       # to "latest", which is the same mutable-reference problem we pin SHAs to
       # avoid. Findings upload to Security > Code scanning.
       - name: zizmor
-        uses: zizmorcore/zizmor-action@3dc1ecc9bcb9e94e9b2c709687979e1298497054 # v0.6.2
+        uses: zizmorcore/zizmor-action@85b2b9fb8e3325e7a23d7d0a9d7ba5ae0f999e3e # v0.7.1
         continue-on-error: true
         with:
           version: "1.28.0"
